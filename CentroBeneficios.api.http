@@ -1,0 +1,6 @@
+@CentroBeneficios.api_HostAddress = http://localhost:5219
+
+GET {{CentroBeneficios.api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
