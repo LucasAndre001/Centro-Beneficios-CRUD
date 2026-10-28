@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,12 @@ if (!string.IsNullOrEmpty(port))
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecurityTransformer>();
@@ -59,6 +65,7 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
 
