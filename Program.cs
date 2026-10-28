@@ -1,6 +1,7 @@
 using System.Text;
 using CentroBeneficios.Api.Data;
 using CentroBeneficios.Api.Docs;
+using CentroBeneficios.Api.Exceptions;
 using CentroBeneficios.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -53,9 +54,15 @@ builder.Services
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 
+builder.Services.AddExceptionHandler<AppExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<EmployeeService>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
