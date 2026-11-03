@@ -31,7 +31,11 @@
               "@fontsource/gelasio/600.css",
               "@fontsource/gelasio/700.css",
               "src/styles.css"
-            ]
+            ],
+            "outputPath": {
+              "base": "dist",
+              "browser": ""
+            }
           },
           "configurations": {
             "production": {
