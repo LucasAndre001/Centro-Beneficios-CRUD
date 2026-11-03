@@ -58,11 +58,13 @@ builder.Services
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+    .AddPolicy("EmployeeOnly", policy => policy.RequireRole("Employee"));
 
 builder.Services.AddExceptionHandler<AppExceptionHandler>();
 builder.Services.AddProblemDetails();
-
+builder.Services.AddScoped<RedemptionService>();
+builder.Services.AddScoped<MeService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ProductService>();
