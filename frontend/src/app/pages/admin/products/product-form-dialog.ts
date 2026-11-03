@@ -6,6 +6,7 @@ import {
   OnInit,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -15,11 +16,12 @@ import { DialogService } from '../../../core/dialog.service';
 import { resizeImage } from '../../../core/image';
 import { ProductRequest } from '../../../core/models';
 import { Icon } from '../../../shared/icon/icon';
+import { ImageCropper } from '../../../shared/image-cropper/image-cropper';
 import { Modal } from '../../../shared/modal/modal';
 
 @Component({
   selector: 'app-product-form-dialog',
-  imports: [Modal, ReactiveFormsModule, Icon],
+  imports: [Modal, ReactiveFormsModule, Icon, ImageCropper],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-form-dialog.html',
   styleUrls: ['../dialogs/dialogs.css', './product-form-dialog.css'],
@@ -40,6 +42,8 @@ export class ProductFormDialog implements OnInit {
   });
 
   protected readonly image = signal<string | null>(null);
+  private readonly cropper = viewChild(ImageCropper);
+  private newFileChosen = false;
   protected readonly dragging = signal(false);
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
@@ -106,7 +110,7 @@ export class ProductFormDialog implements OnInit {
       description: value.description.trim(),
       stockQuantity: value.stockQuantity,
       pointCost: value.pointCost,
-      imageDataUrl: this.image(),
+      imageDataUrl: this.finalImage(),
       publish,
     };
 
@@ -168,9 +172,24 @@ export class ProductFormDialog implements OnInit {
     }
   }
 
+  protected removeImage(): void {
+    this.image.set(null);
+    this.newFileChosen = false;
+  }
+
+  // Foto nova sempre sai recortada no formato do card; foto já salva só é refeita se foi ajustada
+  private finalImage(): string | null {
+    const cropper = this.cropper();
+    if (!this.image() || !cropper) {
+      return this.image();
+    }
+    return this.newFileChosen || cropper.changed() ? cropper.export() : this.image();
+  }
+
   private async useFile(file: File): Promise<void> {
     try {
-      this.image.set(await resizeImage(file));
+      this.image.set(await resizeImage(file, 1600, 0.9));
+      this.newFileChosen = true;
       this.error.set('');
     } catch (error) {
       this.error.set(error instanceof Error ? error.message : 'Imagem inválida.');

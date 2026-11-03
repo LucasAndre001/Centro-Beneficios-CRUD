@@ -38,6 +38,13 @@ body {
   font-family: var(--font);
   font-size: 16px;
   line-height: 1.45;
+  font-variant-numeric: lining-nums;
+}
+
+table,
+.list,
+.tabular {
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 h1,

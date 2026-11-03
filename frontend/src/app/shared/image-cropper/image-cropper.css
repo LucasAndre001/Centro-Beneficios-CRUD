@@ -1,0 +1,77 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 3 / 2;
+  align-self: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.frame:active {
+  cursor: grabbing;
+}
+
+.frame img {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.segmented button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.segmented button.active {
+  background: var(--blue);
+  color: var(--sky);
+  font-weight: 600;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 160px;
+}
+
+.zoom input {
+  flex: 1;
+  accent-color: var(--sky);
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+}

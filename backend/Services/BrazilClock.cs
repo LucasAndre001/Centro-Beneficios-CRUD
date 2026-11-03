@@ -9,6 +9,9 @@ public static class BrazilClock
     public static DateOnly Today =>
         DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, Zone));
 
+    public static DateTime StartOfDayUtc(DateOnly date) =>
+        TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue), Zone);
+
     public static (DateOnly Start, DateOnly End) GetRange(GoalPeriod period)
     {
         var today = Today;

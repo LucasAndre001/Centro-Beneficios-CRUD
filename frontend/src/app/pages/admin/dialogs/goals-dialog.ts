@@ -37,30 +37,34 @@ export class GoalsDialog implements OnInit {
   }
 
   protected save(): void {
-    const goals = this.normalized();
-
     if (this.form.invalid) {
       this.error.set('As metas precisam ser maiores que zero.');
       return;
     }
-    if (goals.day === null && goals.week === null && goals.month === null) {
-      this.error.set('Defina ao menos uma meta.');
-      return;
-    }
 
+    this.submit(this.normalized());
+  }
+
+  protected async removeAll(): Promise<void> {
+    const confirmed = await this.dialogs.confirm({
+      title: 'Remover todas as metas?',
+      message: 'Dia, semana e mês ficarão sem meta até você definir novas.',
+      confirmLabel: 'Remover metas',
+      danger: true,
+    });
+
+    if (confirmed) {
+      this.submit({ day: null, week: null, month: null });
+    }
+  }
+
+  private submit(goals: Goals): void {
     this.saving.set(true);
     this.error.set('');
     this.api.updateGoals(goals).subscribe({
       next: (result) => {
         this.saving.set(false);
-        const describe = (label: string, value: number | null) =>
-          `${label}: ${value === null ? 'sem meta' : `${value} atendimentos por funcionário`}`;
-        this.dialogs.success(
-          'Metas atualizadas',
-          describe('Dia', result.day),
-          describe('Semana', result.week),
-          describe('Mês', result.month),
-        );
+        this.notify(result);
         this.saved.emit();
         this.closed.emit();
       },
@@ -69,6 +73,22 @@ export class GoalsDialog implements OnInit {
         this.error.set(errorMessage(error));
       },
     });
+  }
+
+  private notify(goals: Goals): void {
+    if (goals.day === null && goals.week === null && goals.month === null) {
+      this.dialogs.success('Metas removidas', 'Nenhum período tem meta no momento.');
+      return;
+    }
+
+    const describe = (label: string, value: number | null) =>
+      `${label}: ${value === null ? 'sem meta' : `${value} atendimentos por funcionário`}`;
+    this.dialogs.success(
+      'Metas atualizadas',
+      describe('Dia', goals.day),
+      describe('Semana', goals.week),
+      describe('Mês', goals.month),
+    );
   }
 
   private normalized(): Goals {

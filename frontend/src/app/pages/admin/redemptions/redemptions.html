@@ -1,0 +1,78 @@
+<div class="page">
+  <section class="card">
+    <div class="toolbar">
+      <h1 class="card-title start">Resgates</h1>
+      <span class="spacer"></span>
+      <app-tabs label="Período" variant="pill" [options]="rangeTabs" [(value)]="range" />
+    </div>
+
+    <div class="toolbar">
+      <label class="search">
+        <app-icon name="search" />
+        <span class="sr-only">Buscar por funcionário ou produto</span>
+        <input
+          type="search"
+          placeholder="Buscar por funcionário ou produto"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+      </label>
+      <button type="button" class="btn btn-light" (click)="reload()">Atualizar</button>
+    </div>
+
+    @if (redemptions() !== null) {
+      <div class="summary tabular">
+        <span
+          ><strong>{{ totals().count }}</strong> itens resgatados</span
+        >
+        <span
+          ><strong>{{ totals().points }}</strong> pts utilizados</span
+        >
+        @if (totals().fresh > 0) {
+          <span class="badge"
+            >{{ totals().fresh }} {{ totals().fresh === 1 ? 'novo' : 'novos' }} desde a sua última
+            visita</span
+          >
+        }
+      </div>
+    }
+
+    <div class="table-wrap">
+      @if (error()) {
+        <p class="empty">{{ error() }}</p>
+      } @else if (redemptions() === null) {
+        <p class="empty">Carregando...</p>
+      } @else if (visible().length === 0) {
+        <p class="empty">Nenhum resgate neste período.</p>
+      } @else {
+        <table class="data">
+          <thead>
+            <tr>
+              <th scope="col">data</th>
+              <th scope="col">funcionário</th>
+              <th scope="col">produto</th>
+              <th scope="col">qtd.</th>
+              <th scope="col">pontos</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of visible(); track item.id) {
+              <tr [class.fresh]="isNew(item)">
+                <td>
+                  {{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                  @if (isNew(item)) {
+                    <span class="badge">novo</span>
+                  }
+                </td>
+                <td>{{ item.employeeName }}</td>
+                <td>{{ item.productName }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.totalCostPoints }} pts</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+</div>

@@ -35,8 +35,7 @@ export const routes: Routes = [
       {
         path: 'jogos',
         title: 'Jogos | Centro de Benefícios',
-        canActivate: [roleGuard('Employee')],
-        loadComponent: () => import('./pages/employee/games/games').then((m) => m.Games),
+        loadComponent: () => import('./pages/games/games').then((m) => m.Games),
       },
       {
         path: 'admin',
@@ -55,6 +54,13 @@ export const routes: Routes = [
         title: 'Produtos | Centro de Benefícios',
         canActivate: [roleGuard('Admin')],
         loadComponent: () => import('./pages/admin/products/products').then((m) => m.Products),
+      },
+      {
+        path: 'admin/resgates',
+        title: 'Resgates | Centro de Benefícios',
+        canActivate: [roleGuard('Admin')],
+        loadComponent: () =>
+          import('./pages/admin/redemptions/redemptions').then((m) => m.Redemptions),
       },
       {
         path: 'admin/sorteio',

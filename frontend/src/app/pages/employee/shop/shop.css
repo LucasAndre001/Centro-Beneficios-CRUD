@@ -41,7 +41,7 @@
 }
 
 .photo {
-  height: 200px;
+  aspect-ratio: 3 / 2;
   background: var(--grey);
   color: #5a6a8e;
   display: grid;

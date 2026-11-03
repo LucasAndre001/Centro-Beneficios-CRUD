@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   AdminDashboard,
+  AdminRedemption,
   AttendanceDay,
   AttendanceRow,
   BatchResult,
@@ -97,6 +98,14 @@ export class AdminApi {
       reason,
       employeeIds,
     });
+  }
+
+  redemptions(search = '', from: string | null = null, take = 200): Observable<AdminRedemption[]> {
+    let params = new HttpParams().set('search', search).set('take', take);
+    if (from) {
+      params = params.set('from', from);
+    }
+    return this.http.get<AdminRedemption[]>(`${this.baseUrl}/redemptions`, { params });
   }
 
   products(search = '', includeInactive = false): Observable<ProductSummary[]> {

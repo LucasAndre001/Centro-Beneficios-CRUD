@@ -1,7 +1,6 @@
 using CentroBeneficios.Api.Data;
 using CentroBeneficios.Api.Dtos.Goals;
 using CentroBeneficios.Api.Entities;
-using CentroBeneficios.Api.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CentroBeneficios.Api.Services;
@@ -23,13 +22,9 @@ public class GoalService
         return ToDto(goals);
     }
 
+    // Período enviado como null remove a meta; todos null removem todas as metas.
     public async Task<GoalsDto> UpdateAsync(UpdateGoalsRequest request, int adminId, CancellationToken ct)
     {
-        if (request.Day is null && request.Week is null && request.Month is null)
-        {
-            throw new AppException("Defina ao menos uma meta (dia, semana ou mês).");
-        }
-
         var existing = await _db.Goals.ToListAsync(ct);
 
         Upsert(existing, GoalPeriod.Day, request.Day, adminId);

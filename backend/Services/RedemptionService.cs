@@ -108,6 +108,34 @@ public class RedemptionService
         return new RedeemResultDto(dto, newBalance);
     }
 
+    public async Task<List<AdminRedemptionDto>> ListAllAsync(
+        string? search, DateOnly? from, int take, CancellationToken ct)
+    {
+        var query = _db.Redemptions.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search.Trim()}%";
+            query = query.Where(r =>
+                EF.Functions.ILike(r.User.Name, pattern) || EF.Functions.ILike(r.Product.Name, pattern));
+        }
+
+        if (from is not null)
+        {
+            var fromUtc = BrazilClock.StartOfDayUtc(from.Value);
+            query = query.Where(r => r.CreatedAt >= fromUtc);
+        }
+
+        return await query
+            .OrderByDescending(r => r.CreatedAt)
+            .ThenByDescending(r => r.Id)
+            .Take(Math.Clamp(take, 1, 500))
+            .Select(r => new AdminRedemptionDto(
+                r.Id, r.UserId, r.User.Name, r.ProductId, r.Product.Name,
+                r.Quantity, r.UnitCostSnapshot, r.TotalCostPoints, r.CreatedAt))
+            .ToListAsync(ct);
+    }
+
     private async Task<string> DescribeStockFailureAsync(int productId, int quantity, CancellationToken ct)
     {
         var current = await _db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId, ct);

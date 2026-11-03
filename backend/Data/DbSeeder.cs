@@ -5,6 +5,9 @@ namespace CentroBeneficios.Api.Data;
 
 public static class DbSeeder
 {
+    private record AdminSeed(string Name, string Email, string Password);
+
+    // Cria cada administrador configurado cujo e-mail ainda não existe. Nunca altera contas existentes.
     public static async Task SeedAdminAsync(IServiceProvider services, IConfiguration config)
     {
         using var scope = services.CreateScope();
@@ -14,34 +17,48 @@ public static class DbSeeder
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            if (await db.Users.AnyAsync(u => u.Role == UserRole.Admin))
+            foreach (var seed in ReadSeeds(config))
             {
-                return;
+                var email = seed.Email.Trim().ToLowerInvariant();
+
+                if (await db.Users.AnyAsync(u => u.Email == email))
+                {
+                    continue;
+                }
+
+                db.Users.Add(new User
+                {
+                    Name = seed.Name.Trim(),
+                    Email = email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(seed.Password),
+                    Role = UserRole.Admin
+                });
+
+                await db.SaveChangesAsync();
+                logger.LogInformation("Administrador criado: {Email}", email);
             }
-
-            var email = config["Seed:AdminEmail"];
-            var password = config["Seed:AdminPassword"];
-
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-            {
-                logger.LogWarning("Nenhum administrador existe e Seed:AdminEmail/Seed:AdminPassword não estão configurados.");
-                return;
-            }
-
-            db.Users.Add(new User
-            {
-                Name = config["Seed:AdminName"] ?? "Administrador",
-                Email = email.Trim().ToLowerInvariant(),
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-                Role = UserRole.Admin
-            });
-
-            await db.SaveChangesAsync();
-            logger.LogInformation("Administrador inicial criado: {Email}", email);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Não foi possível criar o administrador inicial.");
+            logger.LogWarning(ex, "Não foi possível criar os administradores.");
         }
+    }
+
+    // Aceita o formato antigo (Seed:AdminEmail) e a lista Seed:Admins:0, Seed:Admins:1...
+    private static List<AdminSeed> ReadSeeds(IConfiguration config)
+    {
+        var seeds = config.GetSection("Seed:Admins")
+            .GetChildren()
+            .Select(s => new AdminSeed(s["Name"] ?? "Administrador", s["Email"] ?? "", s["Password"] ?? ""))
+            .ToList();
+
+        seeds.Add(new AdminSeed(
+            config["Seed:AdminName"] ?? "Administrador",
+            config["Seed:AdminEmail"] ?? "",
+            config["Seed:AdminPassword"] ?? ""));
+
+        return seeds
+            .Where(s => !string.IsNullOrWhiteSpace(s.Email) && !string.IsNullOrWhiteSpace(s.Password))
+            .ToList();
     }
 }

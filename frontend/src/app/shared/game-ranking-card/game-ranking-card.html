@@ -11,15 +11,7 @@
 } @else if (ranking().length === 0) {
   <p class="empty">Ninguém jogou ainda. Seja o primeiro!</p>
 } @else {
-  <ol class="list scroll">
-    @for (row of ranking(); track row.employeeId) {
-      <li [class.me]="row.employeeId === highlightUserId()">
-        <span class="rank-pos">{{ row.position }}</span>
-        <span class="spacer">{{ row.employeeId === highlightUserId() ? 'Você' : row.name }}</span>
-        <span>{{ row.bestScore | number }}</span>
-      </li>
-    }
-  </ol>
+  <app-ranking-list [rows]="ranking()" [highlightUserId]="highlightUserId()" />
 }
 
 @if (showPlayLink()) {

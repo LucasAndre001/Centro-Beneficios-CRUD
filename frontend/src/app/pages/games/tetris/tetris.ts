@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { ScoreSubmission } from '../../../../core/models';
+import { ScoreSubmission } from '../../../core/models';
 import { COLUMNS, Matrix, PieceKind, ROWS, SHAPES, TetrisEngine } from './tetris-engine';
 
 type Status = 'idle' | 'playing' | 'paused' | 'over';

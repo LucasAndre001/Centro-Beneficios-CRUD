@@ -1,4 +1,3 @@
-import { DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,13 +10,14 @@ import {
 import { RouterLink } from '@angular/router';
 import { GamesApi } from '../../api/games-api.service';
 import { GameInfo, GameRankingItem } from '../../core/models';
+import { RankingList } from '../ranking-list/ranking-list';
 import { TabOption, Tabs } from '../tabs/tabs';
 
 const COMING_SOON = '__em-breve__';
 
 @Component({
   selector: 'app-game-ranking-card',
-  imports: [Tabs, DecimalPipe, RouterLink],
+  imports: [Tabs, RankingList, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './game-ranking-card.html',
   host: { class: 'card' },

@@ -7,19 +7,20 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { GamesApi } from '../../../api/games-api.service';
-import { errorMessage } from '../../../core/api-error';
-import { AuthService } from '../../../core/auth.service';
-import { DialogService } from '../../../core/dialog.service';
-import { GameInfo, GameRankingItem, MyGameStats, ScoreSubmission } from '../../../core/models';
-import { TabOption, Tabs } from '../../../shared/tabs/tabs';
+import { GamesApi } from '../../api/games-api.service';
+import { errorMessage } from '../../core/api-error';
+import { AuthService } from '../../core/auth.service';
+import { DialogService } from '../../core/dialog.service';
+import { GameInfo, GameRankingItem, MyGameStats, ScoreSubmission } from '../../core/models';
+import { RankingList } from '../../shared/ranking-list/ranking-list';
+import { TabOption, Tabs } from '../../shared/tabs/tabs';
 import { Tetris } from './tetris/tetris';
 
 const COMING_SOON = '__em-breve__';
 
 @Component({
   selector: 'app-games',
-  imports: [Tabs, Tetris, DecimalPipe],
+  imports: [Tabs, Tetris, DecimalPipe, RankingList],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './games.html',
   styleUrl: './games.css',

@@ -21,3 +21,14 @@ public record RedemptionDto(
     DateTime CreatedAt);
 
 public record RedeemResultDto(RedemptionDto Redemption, int NewBalance);
+
+public record AdminRedemptionDto(
+    int Id,
+    int EmployeeId,
+    string EmployeeName,
+    int ProductId,
+    string ProductName,
+    int Quantity,
+    int UnitCost,
+    int TotalCostPoints,
+    DateTime CreatedAt);

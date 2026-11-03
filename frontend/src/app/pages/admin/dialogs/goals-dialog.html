@@ -1,4 +1,4 @@
-<app-modal heading="Definir metas" size="sm" (closed)="closed.emit()">
+<app-modal heading="Definir metas" (closed)="closed.emit()">
   <form class="section-form" [formGroup]="form" (ngSubmit)="save()">
     <p class="muted small hint">
       Atendimentos por funcionário. Deixe em branco o período que não terá meta.
@@ -20,6 +20,9 @@
     <p class="error-text" role="alert">{{ error() }}</p>
 
     <div class="footer">
+      <button type="button" class="btn btn-outline" [disabled]="saving()" (click)="removeAll()">
+        Remover todas
+      </button>
       <span class="spacer"></span>
       <button type="button" class="btn btn-outline" (click)="closed.emit()">Cancelar</button>
       <button type="submit" class="btn" [disabled]="saving()">

@@ -48,8 +48,7 @@
         <div class="record">
           <span class="muted small">Melhor da equipe</span>
           <span
-            >{{ top.bestScore | number }} ·
-            {{ top.employeeId === userId ? 'Você' : top.name }}</span
+            >{{ top.bestScore | number }} · {{ top.userId === userId ? 'Você' : top.name }}</span
           >
         </div>
       }
@@ -60,15 +59,7 @@
       @if (ranking().length === 0) {
         <p class="empty">Ninguém jogou ainda.</p>
       } @else {
-        <ol class="list scroll">
-          @for (row of ranking(); track row.employeeId) {
-            <li [class.me]="row.employeeId === userId">
-              <span class="rank-pos">{{ row.position }}</span>
-              <span class="spacer">{{ row.employeeId === userId ? 'Você' : row.name }}</span>
-              <span>{{ row.bestScore | number }}</span>
-            </li>
-          }
-        </ol>
+        <app-ranking-list [rows]="ranking()" [highlightUserId]="userId" />
       }
     </section>
   </div>

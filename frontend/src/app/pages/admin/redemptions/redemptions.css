@@ -1,0 +1,25 @@
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  color: var(--muted);
+}
+
+.summary strong {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+table.data {
+  min-width: 620px;
+}
+
+tr.fresh td {
+  background: rgba(143, 195, 232, 0.08);
+}
+
+td .badge {
+  margin-left: 8px;
+}

@@ -18,6 +18,6 @@ public class SubmitScoreRequest
 
 public record GameResultDto(int Score, int BestScore, bool IsNewRecord, int Position);
 
-public record GameRankingItemDto(int Position, int EmployeeId, string Name, int BestScore);
+public record GameRankingItemDto(int Position, int UserId, string Name, bool IsAdmin, int BestScore);
 
 public record MyGameStatsDto(int? BestScore, int Plays, int? Position);

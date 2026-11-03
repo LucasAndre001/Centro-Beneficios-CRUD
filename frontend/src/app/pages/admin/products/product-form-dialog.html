@@ -32,26 +32,31 @@
           aria-label="Escolher imagem do produto"
           (change)="onFileSelected($event)"
         />
-        <button
-          type="button"
-          class="drop"
-          [class.dragging]="dragging()"
-          (click)="fileInput.click()"
-          (dragover)="$event.preventDefault(); dragging.set(true)"
-          (dragleave)="dragging.set(false)"
-          (drop)="onDrop($event)"
-        >
-          @if (image(); as src) {
-            <img [src]="src" alt="Prévia da imagem do produto" />
-          } @else {
+        @if (image(); as src) {
+          <app-image-cropper [src]="src" />
+          <div class="image-actions">
+            <button type="button" class="btn btn-outline" (click)="fileInput.click()">
+              Trocar foto
+            </button>
+            <button type="button" class="btn btn-outline" (click)="removeImage()">
+              Remover foto
+            </button>
+          </div>
+        } @else {
+          <button
+            type="button"
+            class="drop"
+            [class.dragging]="dragging()"
+            (click)="fileInput.click()"
+            (dragover)="$event.preventDefault(); dragging.set(true)"
+            (dragleave)="dragging.set(false)"
+            (drop)="onDrop($event)"
+          >
             <app-icon name="plus" [size]="34" />
             <span>Clique ou arraste uma foto do computador</span>
-            <span class="small hint-dark">JPG, PNG ou WebP · a foto se ajusta ao card da loja</span>
-          }
-        </button>
-        @if (image()) {
-          <button type="button" class="btn btn-outline fit" (click)="image.set(null)">
-            Remover imagem
+            <span class="small hint-dark"
+              >JPG, PNG ou WebP · depois você ajusta o enquadramento</span
+            >
           </button>
         }
       </div>

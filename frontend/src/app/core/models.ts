@@ -150,6 +150,18 @@ export interface ProductRequest {
   publish: boolean;
 }
 
+export interface AdminRedemption {
+  id: number;
+  employeeId: number;
+  employeeName: string;
+  productId: number;
+  productName: string;
+  quantity: number;
+  unitCost: number;
+  totalCostPoints: number;
+  createdAt: string;
+}
+
 export interface AttendanceRow {
   employeeId: number;
   name: string;
@@ -167,8 +179,9 @@ export interface GameInfo {
 
 export interface GameRankingItem {
   position: number;
-  employeeId: number;
+  userId: number;
   name: string;
+  isAdmin: boolean;
   bestScore: number;
 }
 

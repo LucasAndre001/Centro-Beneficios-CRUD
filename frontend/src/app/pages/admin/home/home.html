@@ -103,7 +103,7 @@
       }
     </section>
 
-    <app-game-ranking-card />
+    <app-game-ranking-card [highlightUserId]="user()?.id ?? null" [showPlayLink]="true" />
   </div>
 </div>
 

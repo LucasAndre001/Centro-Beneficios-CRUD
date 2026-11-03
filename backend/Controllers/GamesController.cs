@@ -34,14 +34,12 @@ public class GamesController : ControllerBase
     }
 
     [HttpGet("{game}/me")]
-    [Authorize(Policy = "EmployeeOnly")]
     public async Task<ActionResult<MyGameStatsDto>> Me(string game, CancellationToken ct)
     {
         return Ok(await _games.MyStatsAsync(game, User.GetUserId(), ct));
     }
 
     [HttpPost("{game}/scores")]
-    [Authorize(Policy = "EmployeeOnly")]
     public async Task<ActionResult<GameResultDto>> Submit(
         string game, SubmitScoreRequest request, CancellationToken ct)
     {

@@ -21,10 +21,9 @@ public class GameService
         EnsureGame(game);
         ValidateTetrisScore(request);
 
-        var isActiveEmployee = await _db.Users
-            .AnyAsync(u => u.Id == userId && u.IsActive && u.Role == UserRole.Employee, ct);
+        var isActiveUser = await _db.Users.AnyAsync(u => u.Id == userId && u.IsActive, ct);
 
-        if (!isActiveEmployee)
+        if (!isActiveUser)
         {
             throw new AppException("Usuário sem permissão para jogar.", StatusCodes.Status403Forbidden);
         }
@@ -56,15 +55,15 @@ public class GameService
 
         var rows = await _db.GameScores.AsNoTracking()
             .Where(s => s.Game == game && s.User.IsActive)
-            .GroupBy(s => new { s.UserId, s.User.Name })
-            .Select(g => new { g.Key.UserId, g.Key.Name, Best = g.Max(s => s.Score) })
+            .GroupBy(s => new { s.UserId, s.User.Name, s.User.Role })
+            .Select(g => new { g.Key.UserId, g.Key.Name, g.Key.Role, Best = g.Max(s => s.Score) })
             .OrderByDescending(x => x.Best)
             .ThenBy(x => x.Name)
             .Take(Math.Clamp(take, 1, 50))
             .ToListAsync(ct);
 
         return rows
-            .Select((r, i) => new GameRankingItemDto(i + 1, r.UserId, r.Name, r.Best))
+            .Select((r, i) => new GameRankingItemDto(i + 1, r.UserId, r.Name, r.Role == UserRole.Admin, r.Best))
             .ToList();
     }
 

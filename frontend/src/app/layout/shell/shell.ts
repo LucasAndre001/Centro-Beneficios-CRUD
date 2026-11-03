@@ -28,6 +28,8 @@ const ADMIN_NAV: NavItem[] = [
   { path: '/admin', label: 'Início', icon: 'home' },
   { path: '/admin/funcionarios', label: 'Funcionários', icon: 'users' },
   { path: '/admin/produtos', label: 'Produtos', icon: 'box' },
+  { path: '/admin/resgates', label: 'Resgates', icon: 'receipt' },
+  { path: '/jogos', label: 'Jogos', icon: 'game' },
   { path: '/admin/sorteio', label: 'Sorteio', icon: 'gift', soon: true },
 ];
 
