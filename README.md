@@ -1,7 +1,8 @@
 # Centro de Benefícios
 
 Portal interno da Canaã Telecom. Funcionários acompanham atendimentos, metas e pontos, resgatam
-produtos e jogam; a supervisão gerencia funcionários, produtos, metas e lançamentos.
+produtos e jogam; a supervisão gerencia funcionários, produtos, metas, lançamentos e resgates, e
+também participa do ranking dos jogos.
 
 O ambiente publicado é de uso interno: só funcionários com conta criada pela supervisão
 conseguem entrar. Este guia explica como rodar o projeto **no seu computador** para estudar e
@@ -76,9 +77,20 @@ dotnet user-secrets set "Seed:AdminPassword" "Admin123"
 |---|---|
 | `ConnectionStrings:Default` | banco criado no passo 2 |
 | `Jwt:Key` | chave que assina os tokens de login (mínimo 32 caracteres) |
-| `Seed:AdminEmail` e `Seed:AdminPassword` | administrador criado automaticamente quando o banco ainda não tem nenhum |
+| `Seed:AdminEmail` e `Seed:AdminPassword` | administrador criado automaticamente ao iniciar a API, se o e-mail ainda não existir |
 
 Confira com `dotnet user-secrets list`.
+
+Para criar mais administradores, use a lista `Seed:Admins` (um índice por pessoa) e reinicie a API:
+
+```bash
+dotnet user-secrets set "Seed:Admins:0:Name" "Nome Sobrenome"
+dotnet user-secrets set "Seed:Admins:0:Email" "nome@teste.com"
+dotnet user-secrets set "Seed:Admins:0:Password" "SenhaDeTeste1"
+```
+
+Contas que já existem nunca são alteradas. Depois de criadas, as senhas podem ser removidas com
+`dotnet user-secrets remove "Seed:Admins:0:Password"`.
 
 ## 4. Criar as tabelas e iniciar a API
 
@@ -112,9 +124,11 @@ Abra http://localhost:4200.
 
 1. Entre com o e-mail e a senha que você definiu em `Seed:AdminEmail` e `Seed:AdminPassword`.
 2. Em **Funcionários**, crie um ou mais funcionários com saldo inicial.
-3. Em **Produtos**, cadastre um produto com foto e clique em **Postar**.
+3. Em **Produtos**, cadastre um produto, escolha a foto, ajuste o enquadramento e clique em
+   **Postar**.
 4. Na tela inicial, use **Lançar atendimentos**, **Dar pontos** e **Definir metas**.
 5. Saia e entre com um funcionário para ver o painel, resgatar na loja e jogar Tetris.
+6. Volte como administrador e confira o resgate em **Resgates** e a pontuação em **Jogos**.
 
 ## O que mudar para testar
 
@@ -124,6 +138,7 @@ Abra http://localhost:4200.
 | O front abriu em outra porta (ex.: 4300) | `Cors:AllowedOrigins` em `backend/appsettings.Development.json` |
 | Trocar de banco | `dotnet user-secrets set "ConnectionStrings:Default" "..."` |
 | Recriar o administrador | apague o banco de testes (ou o admin) e reinicie a API |
+| Mais administradores | lista `Seed:Admins` no `user-secrets` (passo 3) |
 | Mudar o tempo de login | `Jwt:ExpiresMinutes` em `backend/appsettings.json` (padrão: 480) |
 
 `frontend/src/environments/environment.ts` só é usado no build de produção; não precisa mexer
