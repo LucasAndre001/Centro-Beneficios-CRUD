@@ -68,6 +68,8 @@ builder.Services.AddScoped<MeService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<GoalService>();
+builder.Services.AddScoped<DashboardService>();
 
 var app = builder.Build();
 
