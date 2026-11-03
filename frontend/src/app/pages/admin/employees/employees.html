@@ -1,0 +1,113 @@
+<div class="page">
+  <section class="card">
+    <h1 class="card-title start">Funcionários</h1>
+
+    <div class="toolbar">
+      <label class="search">
+        <app-icon name="search" />
+        <span class="sr-only">Buscar funcionário</span>
+        <input
+          type="search"
+          placeholder="Buscar por nome ou e-mail"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+      </label>
+      <label class="check">
+        <input
+          type="checkbox"
+          [checked]="showInactive()"
+          (change)="showInactive.set($any($event.target).checked)"
+        />
+        Mostrar inativos
+      </label>
+      <button
+        type="button"
+        class="round-add"
+        aria-label="Novo funcionário"
+        (click)="editing.set(null)"
+      >
+        <app-icon name="plus" [size]="26" />
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      @if (error()) {
+        <p class="empty">{{ error() }}</p>
+      } @else if (employees() === null) {
+        <p class="empty">Carregando...</p>
+      } @else if (visible().length === 0) {
+        <p class="empty">Nenhum funcionário encontrado.</p>
+      } @else {
+        <table class="data">
+          <thead>
+            <tr>
+              <th scope="col">id</th>
+              <th scope="col">nome</th>
+              <th scope="col">e-mail</th>
+              <th scope="col">atend. (mês)</th>
+              <th scope="col">fundos</th>
+              <th scope="col">meta (mês)</th>
+              <th scope="col"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (employee of visible(); track employee.id) {
+              @let month = monthly().get(employee.id);
+              <tr [class.inactive]="!employee.isActive">
+                <td class="muted">{{ employee.id }}</td>
+                <td>
+                  {{ employee.name }}
+                  @if (!employee.isActive) {
+                    <span class="badge outline">inativo</span>
+                  }
+                </td>
+                <td>{{ employee.email }}</td>
+                <td>{{ month?.total ?? '—' }}</td>
+                <td>{{ employee.pointsBalance }}</td>
+                <td>{{ month?.percent != null ? month?.percent + '%' : '—' }}</td>
+                <td class="actions">
+                  @if (employee.isActive) {
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [attr.aria-label]="'Editar ' + employee.name"
+                      (click)="editing.set(employee)"
+                    >
+                      <app-icon name="edit" />
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [attr.aria-label]="'Excluir ' + employee.name"
+                      (click)="deactivate(employee)"
+                    >
+                      <app-icon name="trash" />
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [attr.aria-label]="'Reativar ' + employee.name"
+                      (click)="reactivate(employee)"
+                    >
+                      <app-icon name="restore" />
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+</div>
+
+@if (editing() !== undefined) {
+  <app-employee-form-dialog
+    [employee]="editing() ?? null"
+    (saved)="load()"
+    (closed)="editing.set(undefined)"
+  />
+}

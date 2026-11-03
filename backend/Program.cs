@@ -70,6 +70,8 @@ builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<GoalService>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<QuickEntryService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 

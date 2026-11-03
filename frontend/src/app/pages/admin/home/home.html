@@ -1,0 +1,128 @@
+<div class="page">
+  <section class="card welcome">
+    <h1>Bem-vindo(a)! — {{ user()?.name }}</h1>
+    <p class="muted small">{{ today | date: "EEEE, d 'de' MMMM 'de' y" }}</p>
+  </section>
+
+  <section class="card quick" aria-label="Ações rápidas">
+    <button type="button" class="action strong" (click)="openAttendance()">
+      <app-icon name="headset" [size]="30" [stroke]="1.6" />
+      Lançar atendimentos
+    </button>
+    <button type="button" class="action strong" (click)="openPoints()">
+      <app-icon name="coin" [size]="30" [stroke]="1.6" />
+      Dar pontos
+    </button>
+    <a class="action" routerLink="/admin/funcionarios" [queryParams]="{ novo: 1 }">
+      <app-icon name="user-plus" [size]="30" [stroke]="1.6" />
+      Novo funcionário
+    </a>
+    <a class="action" routerLink="/admin/produtos" [queryParams]="{ novo: 1 }">
+      <app-icon name="box" [size]="30" [stroke]="1.6" />
+      Novo produto
+    </a>
+    <button type="button" class="action" (click)="openGoals()">
+      <app-icon name="target" [size]="30" [stroke]="1.6" />
+      Definir metas
+    </button>
+  </section>
+
+  <div class="columns">
+    <section class="card">
+      <div class="toolbar">
+        <h2 class="card-title start">Ranking da equipe</h2>
+        <span class="spacer"></span>
+        <app-tabs label="Período" variant="pill" [options]="periodTabs" [(value)]="period" />
+      </div>
+      <p class="muted small no-margin">{{ goalText() }} · ordenado por atendimentos</p>
+
+      @if (error()) {
+        <p class="empty">{{ error() }}</p>
+        <button type="button" class="btn btn-light retry" (click)="reload()">Tentar de novo</button>
+      } @else if (dashboard() === null) {
+        <p class="empty">Carregando...</p>
+      } @else if (rows().length === 0) {
+        <p class="empty">Nenhum funcionário ativo. Cadastre a equipe em Funcionários.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="data ranking">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Funcionário</th>
+                <th scope="col">Atend.</th>
+                <th scope="col" class="goal-col">Meta</th>
+                <th scope="col">Saldo</th>
+                <th scope="col" class="actions">Lançar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track row.employeeId) {
+                <tr>
+                  <td class="position">{{ row.position }}</td>
+                  <td>{{ row.name }}</td>
+                  <td>{{ row.total }}</td>
+                  <td>
+                    @if (row.percent !== null) {
+                      <span class="goal">
+                        <app-progress-bar
+                          class="grow"
+                          [percent]="row.percent"
+                          [label]="'Meta de ' + row.name"
+                        />
+                        <span class="pct">{{ row.percent }}%</span>
+                      </span>
+                    } @else {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                  <td>{{ row.balance }} pts</td>
+                  <td class="actions">
+                    <button
+                      type="button"
+                      class="icon-btn bordered"
+                      [attr.aria-label]="'Lançar atendimentos para ' + row.name"
+                      (click)="openAttendance(row.employeeId)"
+                    >
+                      <app-icon name="headset" [size]="20" />
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn bordered"
+                      [attr.aria-label]="'Dar pontos para ' + row.name"
+                      (click)="openPoints(row.employeeId)"
+                    >
+                      <app-icon name="coin-plus" [size]="20" />
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <app-game-ranking-card />
+  </div>
+</div>
+
+@switch (dialog()?.type) {
+  @case ('attendance') {
+    <app-attendance-dialog
+      [employeeId]="dialogEmployeeId()"
+      (saved)="reload()"
+      (closed)="dialog.set(null)"
+    />
+  }
+  @case ('points') {
+    <app-points-dialog
+      [employeeId]="dialogEmployeeId()"
+      (saved)="reload()"
+      (closed)="dialog.set(null)"
+    />
+  }
+  @case ('goals') {
+    <app-goals-dialog (saved)="reload()" (closed)="dialog.set(null)" />
+  }
+}

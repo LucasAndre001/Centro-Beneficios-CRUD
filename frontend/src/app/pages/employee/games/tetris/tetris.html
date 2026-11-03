@@ -1,0 +1,109 @@
+<div class="game">
+  <aside class="side">
+    <section class="panel">
+      <h3>Guardada</h3>
+      <div class="preview">
+        @if (held(); as kind) {
+          <div class="mini">
+            @for (row of previewCells(kind); track $index) {
+              <div class="mini-row">
+                @for (filled of row; track $index) {
+                  <span
+                    class="mini-cell"
+                    [style.background]="filled ? colorOf(kind) : 'transparent'"
+                  ></span>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <span class="muted small">C ou Shift</span>
+        }
+      </div>
+    </section>
+
+    <section class="panel stats" aria-live="polite">
+      <div>
+        <span class="label">Pontos</span>
+        <strong>{{ stats().score }}</strong>
+      </div>
+      <div>
+        <span class="label">Linhas</span>
+        <strong>{{ stats().lines }}</strong>
+      </div>
+      <div>
+        <span class="label">Nível</span>
+        <strong>{{ stats().level }}</strong>
+      </div>
+    </section>
+  </aside>
+
+  <div class="board-wrap">
+    <canvas
+      #board
+      class="board"
+      [width]="width"
+      [height]="height"
+      role="img"
+      aria-label="Tabuleiro do Tetris"
+    ></canvas>
+
+    @if (status() !== 'playing') {
+      <div class="overlay">
+        @switch (status()) {
+          @case ('idle') {
+            <p>Encaixe as peças e complete linhas.</p>
+            <button type="button" class="btn btn-big" (click)="start()">jogar</button>
+          }
+          @case ('paused') {
+            <p>Jogo pausado</p>
+            <button type="button" class="btn btn-big" (click)="resume()">continuar</button>
+          }
+          @case ('over') {
+            <p>Fim de jogo · {{ stats().score }} pontos</p>
+            <button type="button" class="btn btn-big" (click)="start()">jogar de novo</button>
+          }
+        }
+      </div>
+    }
+  </div>
+
+  <aside class="side">
+    <section class="panel">
+      <h3>Próximas</h3>
+      <div class="preview column">
+        @for (kind of nextPieces(); track $index) {
+          <div class="mini">
+            @for (row of previewCells(kind); track $index) {
+              <div class="mini-row">
+                @for (filled of row; track $index) {
+                  <span
+                    class="mini-cell"
+                    [style.background]="filled ? colorOf(kind) : 'transparent'"
+                  ></span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (status() === 'playing') {
+      <button type="button" class="btn btn-outline pause" (click)="pause()">pausar</button>
+    }
+  </aside>
+</div>
+
+<div class="touch" aria-label="Controles de toque">
+  <button type="button" class="btn" aria-label="Guardar peça" (click)="act('hold')">guardar</button>
+  <button type="button" class="btn" aria-label="Mover para a esquerda" (click)="act('left')">
+    ◀
+  </button>
+  <button type="button" class="btn" aria-label="Girar" (click)="act('rotate')">⟳</button>
+  <button type="button" class="btn" aria-label="Mover para a direita" (click)="act('right')">
+    ▶
+  </button>
+  <button type="button" class="btn" aria-label="Descer" (click)="act('down')">▼</button>
+  <button type="button" class="btn" aria-label="Soltar" (click)="act('drop')">soltar</button>
+</div>

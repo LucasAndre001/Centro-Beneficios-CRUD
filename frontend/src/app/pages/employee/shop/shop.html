@@ -1,0 +1,75 @@
+<div class="page">
+  <div class="toolbar">
+    <h1 class="page-title">Loja</h1>
+    <span class="spacer"></span>
+    <label class="search outlined">
+      <app-icon name="search" />
+      <span class="sr-only">Buscar produto</span>
+      <input
+        type="search"
+        placeholder="Buscar produto"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)"
+      />
+    </label>
+    <span class="balance-chip">
+      <app-icon name="coin" />
+      Seu saldo: <strong>{{ balance() ?? '—' }} pts</strong>
+    </span>
+  </div>
+
+  @if (error()) {
+    <div class="card">
+      <p class="empty">{{ error() }}</p>
+      <button type="button" class="btn btn-light retry" (click)="load()">Tentar de novo</button>
+    </div>
+  } @else if (products() === null) {
+    <div class="products">
+      @for (n of [1, 2, 3]; track n) {
+        <div class="skeleton" style="height: 400px"></div>
+      }
+    </div>
+  } @else if (visible().length === 0) {
+    <p class="empty dark">Nenhum produto disponível no momento.</p>
+  } @else {
+    <div class="products">
+      @for (product of visible(); track product.id) {
+        <article class="product">
+          <h2>{{ product.name }}</h2>
+          <div class="photo">
+            @if (product.imageDataUrl) {
+              <img [src]="product.imageDataUrl" [alt]="product.name" />
+            } @else {
+              <app-icon name="image" [size]="44" [stroke]="1.3" />
+            }
+          </div>
+          <p class="description">{{ product.description }}</p>
+          <div class="meta">
+            <span>{{
+              product.stockQuantity > 0 ? product.stockQuantity + ' em estoque' : 'sem estoque'
+            }}</span>
+            <span class="price">{{ product.pointCost }} pts</span>
+          </div>
+          <div class="action">
+            @if (product.stockQuantity === 0) {
+              <button type="button" class="btn blocked" disabled>esgotado</button>
+            } @else if (missingPoints(product) > 0) {
+              <button type="button" class="btn blocked" disabled>
+                faltam {{ missingPoints(product) }} pts
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="btn"
+                [disabled]="redeemingId() !== null"
+                (click)="redeem(product)"
+              >
+                {{ redeemingId() === product.id ? 'resgatando...' : 'resgatar' }}
+              </button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,133 @@
+<app-modal heading="Lançar atendimentos" size="lg" (closed)="closed.emit()">
+  <div class="row">
+    <label class="field">
+      Data
+      <input
+        class="input"
+        type="date"
+        [max]="today"
+        [value]="date()"
+        (change)="date.set($any($event.target).value || today)"
+      />
+    </label>
+    <label class="field grow">
+      Buscar funcionário
+      <input
+        class="input"
+        type="search"
+        placeholder="Nome"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+
+  <p class="muted small hint">
+    Informe o total do dia de cada funcionário. O sistema guarda a diferença, quem lançou e quando.
+  </p>
+
+  @if (employeeId() !== null && !showAll()) {
+    <button type="button" class="btn btn-outline fit" (click)="showAll.set(true)">
+      Mostrar todos os funcionários
+    </button>
+  }
+
+  <div class="table-wrap">
+    @if (loading()) {
+      <p class="empty">Carregando...</p>
+    } @else if (visibleRows().length === 0) {
+      <p class="empty">Nenhum funcionário ativo encontrado.</p>
+    } @else {
+      <table class="data">
+        <thead>
+          <tr>
+            <th scope="col">Funcionário</th>
+            <th scope="col">Registrado</th>
+            <th scope="col" class="actions">Total do dia</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of visibleRows(); track row.employeeId) {
+            <tr>
+              <td>
+                {{ row.name }}
+                @if (row.value !== row.original) {
+                  <span class="badge">alterado</span>
+                }
+              </td>
+              <td class="muted">{{ row.original }}</td>
+              <td class="actions">
+                <span class="stepper">
+                  <button
+                    type="button"
+                    class="icon-btn bordered"
+                    [attr.aria-label]="'Diminuir ' + row.name"
+                    [disabled]="row.value === 0"
+                    (click)="change(row.employeeId, row.value - 1)"
+                  >
+                    −
+                  </button>
+                  <input
+                    class="input number"
+                    type="number"
+                    min="0"
+                    [attr.aria-label]="'Total de ' + row.name"
+                    [value]="row.value"
+                    (change)="change(row.employeeId, $any($event.target).valueAsNumber)"
+                  />
+                  <button
+                    type="button"
+                    class="icon-btn bordered"
+                    [attr.aria-label]="'Aumentar ' + row.name"
+                    (click)="change(row.employeeId, row.value + 1)"
+                  >
+                    +
+                  </button>
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <label class="field">
+    Observação (opcional)
+    <input
+      class="input"
+      type="text"
+      maxlength="250"
+      placeholder="Ex.: correção do plantão de sábado"
+      [value]="note()"
+      (input)="note.set($any($event.target).value)"
+    />
+  </label>
+
+  <p class="error-text" role="alert">{{ error() }}</p>
+
+  <div class="footer">
+    <span class="muted spacer">
+      @switch (changedCount()) {
+        @case (0) {
+          Nenhuma alteração
+        }
+        @case (1) {
+          1 funcionário alterado
+        }
+        @default {
+          {{ changedCount() }} funcionários alterados
+        }
+      }
+    </span>
+    <button type="button" class="btn btn-outline" (click)="closed.emit()">Cancelar</button>
+    <button
+      type="button"
+      class="btn"
+      [disabled]="changedCount() === 0 || saving()"
+      (click)="save()"
+    >
+      {{ saving() ? 'Salvando...' : 'Salvar lançamentos' }}
+    </button>
+  </div>
+</app-modal>

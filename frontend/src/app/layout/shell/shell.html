@@ -1,0 +1,56 @@
+<header class="topbar">
+  <button
+    type="button"
+    class="icon-btn"
+    [attr.aria-label]="menuOpen() ? 'Recolher menu' : 'Abrir menu'"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="main-nav"
+    (click)="toggleMenu()"
+  >
+    <app-icon name="menu" [size]="26" [stroke]="1.6" />
+  </button>
+  <img src="logo.png" alt="Canaã Telecom" class="logo" />
+  <span class="brand">Centro de benefícios</span>
+  <span class="spacer"></span>
+  <span class="user">
+    <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+    <span class="user-name">{{ user()?.name }}</span>
+  </span>
+  <button type="button" class="btn logout" (click)="logout()">sair</button>
+</header>
+
+<div class="layout" [class.collapsed]="!menuOpen()">
+  @if (menuOpen()) {
+    <div class="scrim" (click)="toggleMenu()"></div>
+  }
+  <nav id="main-nav" class="sidebar" [class.open]="menuOpen()" aria-label="Menu principal">
+    @for (item of navItems(); track item.path) {
+      <a
+        class="nav-link"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        [attr.title]="menuOpen() ? null : item.label"
+        (click)="closeMenuOnMobile()"
+      >
+        <app-icon [name]="item.icon" />
+        <span class="nav-label">{{ item.label }}</span>
+        @if (item.soon) {
+          <span class="soon">em breve</span>
+        }
+      </a>
+    }
+
+    @if (!isAdmin()) {
+      <div class="balance">
+        <span class="small muted">Seu saldo</span>
+        <span class="balance-value">{{ balance() ?? '—' }} pts</span>
+      </div>
+    }
+  </nav>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,20 @@
+<div class="backdrop" (click)="close()"></div>
+<section
+  #panel
+  class="panel"
+  [class]="size()"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId"
+  tabindex="-1"
+>
+  <header class="head">
+    <h2 [id]="titleId">{{ heading() }}</h2>
+    @if (closable()) {
+      <button type="button" class="icon-btn" aria-label="Fechar" (click)="close()">
+        <app-icon name="close" />
+      </button>
+    }
+  </header>
+  <ng-content />
+</section>

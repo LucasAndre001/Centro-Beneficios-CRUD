@@ -1,0 +1,121 @@
+<div class="page">
+  <section class="card">
+    <h1 class="card-title start">Produtos</h1>
+
+    <div class="toolbar">
+      <label class="search">
+        <app-icon name="search" />
+        <span class="sr-only">Buscar produto</span>
+        <input
+          type="search"
+          placeholder="Buscar produto por nome"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+      </label>
+      <label class="check">
+        <input
+          type="checkbox"
+          [checked]="showInactive()"
+          (change)="showInactive.set($any($event.target).checked)"
+        />
+        Mostrar excluídos
+      </label>
+      <button
+        type="button"
+        class="round-add"
+        aria-label="Novo produto"
+        (click)="editingId.set(null)"
+      >
+        <app-icon name="plus" [size]="26" />
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      @if (error()) {
+        <p class="empty">{{ error() }}</p>
+      } @else if (products() === null) {
+        <p class="empty">Carregando...</p>
+      } @else if (visible().length === 0) {
+        <p class="empty">Nenhum produto encontrado.</p>
+      } @else {
+        <table class="data">
+          <thead>
+            <tr>
+              <th scope="col">id</th>
+              <th scope="col">nome</th>
+              <th scope="col">estoque</th>
+              <th scope="col">valor</th>
+              <th scope="col">descrição</th>
+              <th scope="col">foto</th>
+              <th scope="col">status</th>
+              <th scope="col"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of visible(); track product.id) {
+              <tr [class.inactive]="product.status === 'Inactive'">
+                <td class="muted">{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.stockQuantity }}</td>
+                <td>{{ product.pointCost }} pts</td>
+                <td>{{ product.description || '—' }}</td>
+                <td>{{ product.hasImage ? 'sim' : 'não' }}</td>
+                <td>
+                  @switch (product.status) {
+                    @case ('Published') {
+                      <span class="badge">publicado</span>
+                    }
+                    @case ('Draft') {
+                      <span class="badge outline">rascunho</span>
+                    }
+                    @default {
+                      <span class="badge outline">excluído</span>
+                    }
+                  }
+                </td>
+                <td class="actions">
+                  @if (product.status === 'Inactive') {
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [attr.aria-label]="'Reativar ' + product.name"
+                      (click)="reactivate(product)"
+                    >
+                      <app-icon name="restore" />
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [attr.aria-label]="'Editar ' + product.name"
+                      (click)="editingId.set(product.id)"
+                    >
+                      <app-icon name="edit" />
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [attr.aria-label]="'Excluir ' + product.name"
+                      (click)="deactivate(product)"
+                    >
+                      <app-icon name="trash" />
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+</div>
+
+@if (editingId() !== undefined) {
+  <app-product-form-dialog
+    [productId]="editingId() ?? null"
+    (saved)="load()"
+    (closed)="editingId.set(undefined)"
+  />
+}

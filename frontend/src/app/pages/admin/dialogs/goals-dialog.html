@@ -1,0 +1,30 @@
+<app-modal heading="Definir metas" size="sm" (closed)="closed.emit()">
+  <form class="section-form" [formGroup]="form" (ngSubmit)="save()">
+    <p class="muted small hint">
+      Atendimentos por funcionário. Deixe em branco o período que não terá meta.
+    </p>
+
+    <label class="field">
+      Meta do dia
+      <input class="input" type="number" min="1" formControlName="day" />
+    </label>
+    <label class="field">
+      Meta da semana (segunda a domingo)
+      <input class="input" type="number" min="1" formControlName="week" />
+    </label>
+    <label class="field">
+      Meta do mês
+      <input class="input" type="number" min="1" formControlName="month" />
+    </label>
+
+    <p class="error-text" role="alert">{{ error() }}</p>
+
+    <div class="footer">
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-outline" (click)="closed.emit()">Cancelar</button>
+      <button type="submit" class="btn" [disabled]="saving()">
+        {{ saving() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </form>
+</app-modal>

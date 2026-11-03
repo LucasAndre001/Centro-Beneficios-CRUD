@@ -1,0 +1,75 @@
+<div class="page">
+  <h1 class="sr-only">Jogos</h1>
+
+  @if (games().length > 0) {
+    <app-tabs label="Jogos disponíveis" variant="boxed" [options]="tabs()" [(value)]="selected" />
+  }
+
+  @if (selected() === 'tetris') {
+    <section class="stage" aria-label="Área do jogo">
+      <app-tetris (finished)="onFinished($event)" />
+      @if (saving()) {
+        <p class="small saving" role="status">Salvando pontuação...</p>
+      }
+    </section>
+  }
+
+  <div class="info">
+    <section class="card">
+      <h2 class="card-title start">Como jogar</h2>
+      <div class="keys">
+        <span><kbd>←</kbd><kbd>→</kbd> mover</span>
+        <span><kbd>↑</kbd> ou <kbd>X</kbd> girar</span>
+        <span><kbd>Z</kbd> girar ao contrário</span>
+        <span><kbd>↓</kbd> descer</span>
+        <span><kbd>Espaço</kbd> soltar</span>
+        <span><kbd>C</kbd> guardar peça</span>
+        <span><kbd>P</kbd> pausar</span>
+      </div>
+      <p class="muted small">
+        Linhas valem 100, 300, 500 ou 800 pontos (1 a 4 de uma vez), multiplicados pelo nível. A
+        cada 10 linhas o nível sobe e as peças caem mais rápido. No celular, use os botões abaixo do
+        tabuleiro.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title start">Recorde</h2>
+      <div class="record">
+        <span class="muted small">Seu melhor</span>
+        <span class="record-value">{{ myStats()?.bestScore ?? 0 | number }}</span>
+        @if (myStats()?.position) {
+          <span class="muted small"
+            >{{ myStats()?.position }}º lugar · {{ myStats()?.plays }} partidas</span
+          >
+        }
+      </div>
+      @if (leader(); as top) {
+        <div class="record">
+          <span class="muted small">Melhor da equipe</span>
+          <span
+            >{{ top.bestScore | number }} ·
+            {{ top.employeeId === userId ? 'Você' : top.name }}</span
+          >
+        </div>
+      }
+    </section>
+
+    <section class="card">
+      <h2 class="card-title start">Ranking</h2>
+      @if (ranking().length === 0) {
+        <p class="empty">Ninguém jogou ainda.</p>
+      } @else {
+        <ol class="list scroll">
+          @for (row of ranking(); track row.employeeId) {
+            <li [class.me]="row.employeeId === userId">
+              <span class="rank-pos">{{ row.position }}</span>
+              <span class="spacer">{{ row.employeeId === userId ? 'Você' : row.name }}</span>
+              <span>{{ row.bestScore | number }}</span>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  </div>
+</div>

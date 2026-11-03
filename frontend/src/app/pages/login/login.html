@@ -1,0 +1,57 @@
+<main class="login">
+  <form class="card login-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <img src="logo.png" alt="Canaã Telecom" class="logo" />
+
+    <div class="titles">
+      <h1>Centro de benefícios</h1>
+      <p class="muted">Canaã Telecom</p>
+    </div>
+
+    <label class="field">
+      Login:
+      <input
+        class="input tall"
+        type="email"
+        formControlName="email"
+        autocomplete="username"
+        placeholder="seu.email@canaa.com"
+      />
+    </label>
+
+    <label class="field">
+      Senha:
+      <span class="password">
+        <input
+          class="input tall"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          autocomplete="current-password"
+        />
+        <button
+          type="button"
+          class="icon-btn"
+          [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+          (click)="showPassword.set(!showPassword())"
+        >
+          <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" />
+        </button>
+      </span>
+    </label>
+
+    <p class="error-text" role="alert">{{ error() }}</p>
+
+    <button type="submit" class="btn btn-big" [disabled]="loading()">
+      {{ loading() ? 'Entrando...' : 'Entrar' }}
+    </button>
+
+    @if (slowServer()) {
+      <p class="small muted center" role="status">
+        O servidor estava em repouso e pode levar até um minuto para responder.
+      </p>
+    }
+
+    <button type="button" class="link" (click)="forgotPassword()">Esqueci minha senha</button>
+  </form>
+
+  <img src="marca.png" alt="" aria-hidden="true" class="mark" />
+</main>

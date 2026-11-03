@@ -1,0 +1,87 @@
+<app-modal
+  [heading]="productId() === null ? 'Novo produto' : 'Editar produto'"
+  size="lg"
+  (closed)="closed.emit()"
+>
+  @if (loading()) {
+    <p class="empty">Carregando...</p>
+  } @else {
+    <form class="section-form" [formGroup]="form" (ngSubmit)="save(true)" novalidate>
+      <div class="top-fields">
+        <label class="field">
+          Nome do produto
+          <input class="input" type="text" formControlName="name" />
+        </label>
+        <label class="field">
+          Estoque
+          <input class="input" type="number" min="0" formControlName="stockQuantity" />
+        </label>
+        <label class="field">
+          Valor (pts)
+          <input class="input" type="number" min="0" formControlName="pointCost" />
+        </label>
+      </div>
+
+      <div class="field">
+        <span>Imagem do produto</span>
+        <input
+          #fileInput
+          class="sr-only"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          aria-label="Escolher imagem do produto"
+          (change)="onFileSelected($event)"
+        />
+        <button
+          type="button"
+          class="drop"
+          [class.dragging]="dragging()"
+          (click)="fileInput.click()"
+          (dragover)="$event.preventDefault(); dragging.set(true)"
+          (dragleave)="dragging.set(false)"
+          (drop)="onDrop($event)"
+        >
+          @if (image(); as src) {
+            <img [src]="src" alt="Prévia da imagem do produto" />
+          } @else {
+            <app-icon name="plus" [size]="34" />
+            <span>Clique ou arraste uma foto do computador</span>
+            <span class="small hint-dark">JPG, PNG ou WebP · a foto se ajusta ao card da loja</span>
+          }
+        </button>
+        @if (image()) {
+          <button type="button" class="btn btn-outline fit" (click)="image.set(null)">
+            Remover imagem
+          </button>
+        }
+      </div>
+
+      <label class="field">
+        Descrição
+        <textarea class="input" rows="3" formControlName="description"></textarea>
+      </label>
+
+      <p class="error-text" role="alert">{{ error() }}</p>
+
+      <div class="footer">
+        @if (productId() !== null) {
+          <button
+            type="button"
+            class="icon-btn"
+            aria-label="Excluir produto"
+            (click)="deactivate()"
+          >
+            <app-icon name="trash" [size]="24" />
+          </button>
+        }
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-outline" [disabled]="saving()" (click)="save(false)">
+          Salvar rascunho
+        </button>
+        <button type="submit" class="btn" [disabled]="saving()">
+          {{ saving() ? 'Salvando...' : 'Postar' }}
+        </button>
+      </div>
+    </form>
+  }
+</app-modal>

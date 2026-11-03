@@ -1,0 +1,99 @@
+<app-modal heading="Dar pontos" size="lg" (closed)="closed.emit()">
+  <div class="grid-2">
+    <div class="field">
+      <span id="kind-label">Tipo</span>
+      <div class="segmented" role="radiogroup" aria-labelledby="kind-label">
+        <button
+          type="button"
+          role="radio"
+          [class.active]="kind() === 'credit'"
+          [attr.aria-checked]="kind() === 'credit'"
+          (click)="kind.set('credit')"
+        >
+          Crédito (+)
+        </button>
+        <button
+          type="button"
+          role="radio"
+          [class.active]="kind() === 'debit'"
+          [attr.aria-checked]="kind() === 'debit'"
+          (click)="kind.set('debit')"
+        >
+          Débito (−)
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span id="amount-label">Quantidade de pontos</span>
+      <div class="presets" role="group" aria-labelledby="amount-label">
+        @for (preset of presets; track preset) {
+          <button
+            type="button"
+            [class.active]="amount() === preset"
+            [attr.aria-pressed]="amount() === preset"
+            (click)="amount.set(preset)"
+          >
+            {{ preset }}
+          </button>
+        }
+        <input
+          class="input"
+          type="number"
+          min="1"
+          aria-label="Outra quantidade"
+          [value]="amount()"
+          (input)="setAmount($any($event.target).valueAsNumber)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <label class="field">
+    Motivo (obrigatório)
+    <input
+      class="input"
+      type="text"
+      maxlength="200"
+      placeholder="Ex.: bônus por meta semanal"
+      [value]="reason()"
+      (input)="reason.set($any($event.target).value)"
+    />
+  </label>
+
+  <div class="footer">
+    <span class="spacer">Para quem</span>
+    <button type="button" class="btn btn-outline" (click)="selectAll()">Selecionar todos</button>
+    <button type="button" class="btn btn-outline" (click)="selected.set([])">Limpar</button>
+  </div>
+
+  @if (loading()) {
+    <p class="empty">Carregando...</p>
+  } @else {
+    <ul class="people">
+      @for (employee of employees(); track employee.id) {
+        <li>
+          <label class="person">
+            <input
+              type="checkbox"
+              [checked]="isSelected(employee.id)"
+              (change)="toggle(employee.id)"
+            />
+            <span class="spacer">{{ employee.name }}</span>
+            <span class="muted small">{{ employee.pointsBalance }} pts</span>
+          </label>
+        </li>
+      }
+    </ul>
+  }
+
+  <p class="error-text" role="alert">{{ error() }}</p>
+
+  <div class="footer">
+    <span class="spacer">{{ summary() }}</span>
+    <button type="button" class="btn btn-outline" (click)="closed.emit()">Cancelar</button>
+    <button type="button" class="btn" [disabled]="!canSave() || saving()" (click)="save()">
+      {{ saving() ? 'Salvando...' : 'Confirmar' }}
+    </button>
+  </div>
+</app-modal>

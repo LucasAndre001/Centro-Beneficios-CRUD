@@ -1,0 +1,84 @@
+.login {
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 48px 20px;
+}
+
+.login-card {
+  flex: 0 1 440px;
+  padding: 40px 34px;
+  gap: 16px;
+}
+
+.logo {
+  width: 72px;
+  height: auto;
+  align-self: center;
+}
+
+.titles {
+  text-align: center;
+  margin: 28px 0 14px;
+}
+
+.titles h1 {
+  font-size: 32px;
+}
+
+.titles p {
+  margin: 2px 0 0;
+}
+
+.input.tall {
+  min-height: 52px;
+  padding: 0 16px;
+}
+
+.password {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  color: var(--blue);
+}
+
+.password .input {
+  background: transparent;
+}
+
+.error-text {
+  min-height: 22px;
+  font-size: 14px;
+}
+
+.center {
+  text-align: center;
+  margin: 0;
+}
+
+.link {
+  align-self: center;
+  background: none;
+  border: 0;
+  color: var(--ice);
+  text-decoration: underline;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.mark {
+  flex: 1 1 380px;
+  max-width: 680px;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .mark {
+    display: none;
+  }
+}

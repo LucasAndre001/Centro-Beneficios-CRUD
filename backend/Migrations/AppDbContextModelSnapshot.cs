@@ -58,6 +58,50 @@ namespace CentroBeneficios.api.Migrations
                     b.ToTable("AttendanceEntries");
                 });
 
+            modelBuilder.Entity("CentroBeneficios.Api.Entities.GameScore", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Game")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Lines")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("PlayedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Game", "UserId", "Score");
+
+                    b.ToTable("GameScores", t =>
+                        {
+                            t.HasCheckConstraint("CK_GameScores_Level", "\"Level\" >= 1");
+
+                            t.HasCheckConstraint("CK_GameScores_Lines", "\"Lines\" >= 0");
+
+                            t.HasCheckConstraint("CK_GameScores_Score", "\"Score\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("CentroBeneficios.Api.Entities.Goal", b =>
                 {
                     b.Property<int>("Id")
@@ -283,6 +327,17 @@ namespace CentroBeneficios.api.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CentroBeneficios.Api.Entities.GameScore", b =>
+                {
+                    b.HasOne("CentroBeneficios.Api.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

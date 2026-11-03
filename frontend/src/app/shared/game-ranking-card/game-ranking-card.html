@@ -1,0 +1,27 @@
+<h2 class="card-title">Ranking do jogo</h2>
+
+@if (games().length > 0) {
+  <app-tabs label="Jogos disponíveis" [options]="tabs()" [(value)]="selected" />
+}
+
+@if (loading()) {
+  <p class="empty">Carregando...</p>
+} @else if (failed()) {
+  <p class="empty">Não foi possível carregar o ranking.</p>
+} @else if (ranking().length === 0) {
+  <p class="empty">Ninguém jogou ainda. Seja o primeiro!</p>
+} @else {
+  <ol class="list scroll">
+    @for (row of ranking(); track row.employeeId) {
+      <li [class.me]="row.employeeId === highlightUserId()">
+        <span class="rank-pos">{{ row.position }}</span>
+        <span class="spacer">{{ row.employeeId === highlightUserId() ? 'Você' : row.name }}</span>
+        <span>{{ row.bestScore | number }}</span>
+      </li>
+    }
+  </ol>
+}
+
+@if (showPlayLink()) {
+  <a routerLink="/jogos" class="btn push-bottom">Jogar</a>
+}

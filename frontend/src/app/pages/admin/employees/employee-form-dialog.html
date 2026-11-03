@@ -1,0 +1,68 @@
+<app-modal
+  [heading]="employee() ? 'Editar funcionário' : 'Novo funcionário'"
+  (closed)="closed.emit()"
+>
+  <form class="section-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <label class="field">
+      Nome
+      <input class="input" type="text" formControlName="name" autocomplete="off" />
+    </label>
+    <label class="field">
+      E-mail
+      <input class="input" type="email" formControlName="email" autocomplete="off" />
+    </label>
+    <label class="field">
+      Senha {{ employee() ? '(em branco mantém a atual)' : '(mínimo 6 caracteres)' }}
+      <input class="input" type="password" formControlName="password" autocomplete="new-password" />
+    </label>
+
+    @if (employee()) {
+      <div class="section">
+        <span class="muted small">
+          Correções. Para os lançamentos do dia a dia, use os atalhos da tela inicial.
+        </span>
+        <div class="grid-2">
+          <label class="field">
+            Fundos (pts)
+            <input class="input" type="number" min="0" formControlName="points" />
+          </label>
+          <label class="field">
+            Atendimentos do dia
+            <input class="input" type="number" min="0" formControlName="attendance" />
+          </label>
+        </div>
+        <label class="field">
+          Data dos atendimentos
+          <input
+            class="input"
+            type="date"
+            formControlName="attendanceDate"
+            [max]="today"
+            (change)="loadAttendance()"
+          />
+        </label>
+        @if (pointsChanged()) {
+          <label class="field">
+            Motivo da alteração de fundos (obrigatório)
+            <input class="input" type="text" maxlength="200" formControlName="reason" />
+          </label>
+        }
+      </div>
+    } @else {
+      <label class="field">
+        Fundos iniciais (pts)
+        <input class="input" type="number" min="0" formControlName="points" />
+      </label>
+    }
+
+    <p class="error-text" role="alert">{{ error() }}</p>
+
+    <div class="footer">
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-outline" (click)="closed.emit()">Cancelar</button>
+      <button type="submit" class="btn" [disabled]="saving()">
+        {{ saving() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </form>
+</app-modal>

@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Redemption> Redemptions => Set<Redemption>();
     public DbSet<AttendanceEntry> AttendanceEntries => Set<AttendanceEntry>();
     public DbSet<Goal> Goals => Set<Goal>();
+    public DbSet<GameScore> GameScores => Set<GameScore>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,6 +93,23 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.ToTable(t => t.HasCheckConstraint("CK_Goals_Target", "\"TargetPerEmployee\" > 0"));
+        });
+
+        modelBuilder.Entity<GameScore>(e =>
+        {
+            e.Property(s => s.Game).HasMaxLength(30).IsRequired();
+            e.HasIndex(s => new { s.Game, s.UserId, s.Score });
+
+            e.HasOne(s => s.User).WithMany()
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_GameScores_Score", "\"Score\" >= 0");
+                t.HasCheckConstraint("CK_GameScores_Lines", "\"Lines\" >= 0");
+                t.HasCheckConstraint("CK_GameScores_Level", "\"Level\" >= 1");
+            });
         });
     }
 }

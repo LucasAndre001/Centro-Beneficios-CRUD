@@ -1,0 +1,44 @@
+@if (dialogs.pendingConfirm(); as confirm) {
+  <app-modal [heading]="confirm.title" size="sm" (closed)="dialogs.answer(false)">
+    <p class="message">{{ confirm.message }}</p>
+    @if (confirm.details?.length) {
+      <dl class="details">
+        @for (detail of confirm.details; track detail.label) {
+          <dt>{{ detail.label }}</dt>
+          <dd>{{ detail.value }}</dd>
+        }
+      </dl>
+    }
+    <div class="actions">
+      <button type="button" class="btn btn-outline" (click)="dialogs.answer(false)">
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn"
+        [class.btn-danger]="confirm.danger"
+        (click)="dialogs.answer(true)"
+      >
+        {{ confirm.confirmLabel }}
+      </button>
+    </div>
+  </app-modal>
+}
+
+@if (dialogs.notice(); as notice) {
+  <app-modal [heading]="notice.title" size="sm" (closed)="dialogs.closeNotice()">
+    <div class="badge-icon" [class]="notice.tone">
+      <app-icon
+        [name]="notice.tone === 'error' ? 'close' : notice.tone === 'info' ? 'lock' : 'check'"
+        [size]="28"
+        [stroke]="2.2"
+      />
+    </div>
+    @for (line of notice.lines; track $index) {
+      <p class="message">{{ line }}</p>
+    }
+    <div class="actions center">
+      <button type="button" class="btn" (click)="dialogs.closeNotice()">OK</button>
+    </div>
+  </app-modal>
+}
