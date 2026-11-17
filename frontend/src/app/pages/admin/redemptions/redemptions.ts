@@ -10,8 +10,10 @@ import {
 import { AdminApi } from '../../../api/admin-api.service';
 import { errorMessage } from '../../../core/api-error';
 import { AuthService } from '../../../core/auth.service';
-import { daysAgoIso } from '../../../core/dates';
+import { daysAgoIso, toIsoDate } from '../../../core/dates';
+import { readLastSeen, redemptionsSeenKey, saveLastSeen } from '../../../core/last-seen';
 import { AdminRedemption } from '../../../core/models';
+import { initialsOf } from '../../../core/text';
 import { Icon } from '../../../shared/icon/icon';
 import { TabOption, Tabs } from '../../../shared/tabs/tabs';
 
@@ -33,7 +35,7 @@ const RANGE_DAYS: Record<Range, number | null> = {
 })
 export class Redemptions {
   private readonly api = inject(AdminApi);
-  private readonly lastSeenKey = `cb.redemptions.lastSeen.${inject(AuthService).user()?.id}`;
+  private readonly lastSeenKey = redemptionsSeenKey(inject(AuthService).user()?.id);
   private readonly lastSeen = readLastSeen(this.lastSeenKey);
 
   protected readonly range = signal<Range>('week');
@@ -63,12 +65,42 @@ export class Redemptions {
     fresh: this.visible().filter((item) => this.isNew(item)).length,
   }));
 
+  private readonly dayFormat = new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  protected readonly groups = computed(() => {
+    const today = toIsoDate(new Date());
+    const yesterday = daysAgoIso(1);
+    const groups: { key: string; label: string; items: AdminRedemption[] }[] = [];
+
+    for (const item of this.visible()) {
+      const date = new Date(item.createdAt);
+      const key = toIsoDate(date);
+      let group = groups.at(-1);
+      if (group?.key !== key) {
+        const label =
+          key === today ? 'Hoje' : key === yesterday ? 'Ontem' : capitalize(this.dayFormat.format(date));
+        group = { key, label, items: [] };
+        groups.push(group);
+      }
+      group.items.push(item);
+    }
+    return groups;
+  });
+
   constructor() {
     effect(() => this.load(this.range()));
   }
 
   protected isNew(item: AdminRedemption): boolean {
     return this.lastSeen !== null && new Date(item.createdAt).getTime() > this.lastSeen;
+  }
+
+  protected initials(name: string): string {
+    return initialsOf(name);
   }
 
   protected reload(): void {
@@ -89,19 +121,6 @@ export class Redemptions {
   }
 }
 
-function readLastSeen(key: string): number | null {
-  try {
-    const value = localStorage.getItem(key);
-    return value ? Number(value) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveLastSeen(key: string): void {
-  try {
-    localStorage.setItem(key, String(Date.now()));
-  } catch {
-    // Sem armazenamento local, apenas não marca os resgates como novos na próxima visita
-  }
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

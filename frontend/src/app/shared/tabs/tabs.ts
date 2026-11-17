@@ -31,6 +31,6 @@ export interface TabOption<T> {
 export class Tabs<T> {
   readonly options = input.required<TabOption<T>[]>();
   readonly label = input.required<string>();
-  readonly variant = input<'underline' | 'pill' | 'boxed'>('underline');
+  readonly variant = input<'underline' | 'pill' | 'surface' | 'boxed'>('underline');
   readonly value = model.required<T>();
 }

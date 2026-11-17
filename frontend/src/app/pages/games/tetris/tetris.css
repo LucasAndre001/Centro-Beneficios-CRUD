@@ -16,14 +16,14 @@
   width: 100%;
   height: auto;
   border-radius: 8px;
-  border: 3px solid var(--blue);
+  border: 3px solid var(--card);
 }
 
 .overlay {
   position: absolute;
   inset: 3px;
   border-radius: 6px;
-  background: rgba(19, 16, 89, 0.82);
+  background: var(--overlay);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -34,8 +34,21 @@
   padding: 16px;
 }
 
+.overlay p {
+  margin: 0;
+}
+
+.over-title {
+  font-size: 20px;
+}
+
+.over-sub {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .overlay .btn {
-  background: var(--blue);
+  background: var(--btn);
   min-width: 200px;
 }
 
@@ -43,12 +56,12 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  width: 130px;
+  width: 140px;
 }
 
 .panel {
-  background: var(--blue);
-  color: #fff;
+  background: var(--card);
+  color: var(--on-card);
   border-radius: var(--radius);
   padding: 12px;
   display: flex;
@@ -101,8 +114,8 @@
 }
 
 .pause {
-  color: var(--blue);
-  border-color: var(--blue);
+  color: var(--page-text);
+  border-color: var(--card);
 }
 
 .touch {
@@ -114,7 +127,7 @@
 
 .touch .btn {
   min-height: 52px;
-  background: var(--blue);
+  background: var(--card);
   font-size: 18px;
 }
 

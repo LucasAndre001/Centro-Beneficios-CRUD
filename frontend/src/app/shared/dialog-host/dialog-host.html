@@ -1,6 +1,23 @@
 @if (dialogs.pendingConfirm(); as confirm) {
   <app-modal [heading]="confirm.title" size="sm" (closed)="dialogs.answer(false)">
-    <p class="message">{{ confirm.message }}</p>
+    @if (confirm.item; as item) {
+      <div class="item inner">
+        <span class="thumb" aria-hidden="true">
+          @if (item.imageUrl) {
+            <img [src]="item.imageUrl" alt="" />
+          } @else {
+            <app-icon name="image" [size]="22" />
+          }
+        </span>
+        <span class="item-text">
+          <span>{{ item.name }}</span>
+          <span class="small muted">{{ item.detail }}</span>
+        </span>
+      </div>
+    }
+    @if (confirm.message) {
+      <p class="message">{{ confirm.message }}</p>
+    }
     @if (confirm.details?.length) {
       <dl class="details">
         @for (detail of confirm.details; track detail.label) {
@@ -8,6 +25,9 @@
           <dd>{{ detail.value }}</dd>
         }
       </dl>
+    }
+    @if (confirm.note) {
+      <p class="small muted note">{{ confirm.note }}</p>
     }
     <div class="actions">
       <button type="button" class="btn btn-outline" (click)="dialogs.answer(false)">
@@ -26,19 +46,26 @@
 }
 
 @if (dialogs.notice(); as notice) {
-  <app-modal [heading]="notice.title" size="sm" (closed)="dialogs.closeNotice()">
-    <div class="badge-icon" [class]="notice.tone">
+  <app-modal
+    [heading]="notice.title"
+    size="sm"
+    [centered]="true"
+    (closed)="dialogs.closeNotice()"
+  >
+    <span modalLead class="badge-icon" [class]="notice.tone">
       <app-icon
-        [name]="notice.tone === 'error' ? 'close' : notice.tone === 'info' ? 'lock' : 'check'"
+        [name]="notice.tone === 'error' ? 'alert' : notice.tone === 'info' ? 'lock' : 'check'"
         [size]="28"
-        [stroke]="2.2"
+        [stroke]="2"
       />
-    </div>
+    </span>
     @for (line of notice.lines; track $index) {
       <p class="message">{{ line }}</p>
     }
     <div class="actions center">
-      <button type="button" class="btn" (click)="dialogs.closeNotice()">OK</button>
+      <button type="button" class="btn ok" (click)="dialogs.closeNotice()">
+        {{ notice.tone === 'info' ? 'Entendi' : 'OK' }}
+      </button>
     </div>
   </app-modal>
 }

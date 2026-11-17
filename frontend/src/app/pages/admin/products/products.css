@@ -1,0 +1,40 @@
+.items {
+  min-width: 760px;
+}
+
+.thumb {
+  width: 54px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--photo);
+  color: var(--photo-icon);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.thumb.has-image {
+  background: var(--chip);
+  color: var(--chip-text);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.description {
+  max-width: 380px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.badge.warn {
+  margin-left: 8px;
+}

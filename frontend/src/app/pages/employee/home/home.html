@@ -1,40 +1,56 @@
 <div class="page">
   <section class="card welcome">
-    <h1>Bem-vindo(a)! — {{ user()?.name }}</h1>
-    <p class="muted small">{{ today | date: "EEEE, d 'de' MMMM 'de' y" }}</p>
+    <h1>{{ greeting }}, {{ user()?.name }}!</h1>
+    <p class="muted">
+      <span class="date">{{ today | date: "EEEE, d 'de' MMMM 'de' y" }}</span>
+      @if (weekHint(); as hint) {
+        · {{ hint }}
+      }
+    </p>
   </section>
 
   @if (error()) {
-    <section class="card">
-      <p class="empty">{{ error() }}</p>
-      <button type="button" class="btn btn-light retry" (click)="load()">Tentar de novo</button>
+    <section class="card state-error" role="alert">
+      <span class="error-title"><app-icon name="alert" />Não foi possível carregar</span>
+      <span class="small muted">{{ error() }}</span>
+      <button type="button" class="btn btn-outline" (click)="load()">Tentar de novo</button>
     </section>
   } @else if (dashboard(); as data) {
-    <section class="card summary" aria-label="Resumo">
-      <div class="stat">
-        <span class="stat-label">Atendimentos hoje</span>
-        <span class="stat-value"><app-icon name="headset" [size]="26" />{{ totals().day }}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Na semana</span>
-        <span class="stat-value">{{ totals().week }}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">No mês</span>
-        <span class="stat-value">{{ totals().month }}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Saldo</span>
-        <span class="stat-value"
-          ><app-icon name="coin" [size]="26" />{{ data.pointsBalance }} pts</span
-        >
-      </div>
+    <section class="stat-grid" aria-label="Resumo">
+      @for (stat of stats(); track stat.label) {
+        <div class="stat-card row">
+          <span class="stat-icon" aria-hidden="true"><app-icon [name]="stat.icon" [size]="24" /></span>
+          <span class="stat-text">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value">{{ stat.value }}</span>
+            @if (stat.note) {
+              <span class="stat-note" [class.good]="stat.good">{{ stat.note }}</span>
+            }
+          </span>
+        </div>
+      }
     </section>
+
+    @if (affordable(); as count) {
+      <a routerLink="/loja" class="callout">
+        <app-icon name="bag" [size]="24" />
+        <span class="spacer">
+          Com seu saldo, você já pode resgatar
+          <strong>{{ count === 1 ? '1 produto' : count + ' produtos' }}</strong> da loja.
+        </span>
+        <span class="callout-link">Ver produtos</span>
+      </a>
+    }
 
     <div class="grid-3">
       <section class="card tall">
         <h2 class="card-title">Fundos</h2>
-        <app-tabs label="Visualização dos pontos" [options]="pointsTabs" [(value)]="pointsView" />
+        <app-tabs
+          label="Visualização dos pontos"
+          variant="pill"
+          [options]="pointsTabs"
+          [(value)]="pointsView"
+        />
 
         @if (pointsView() === 'current') {
           <div class="balance">
@@ -42,15 +58,16 @@
             <span class="muted small">disponíveis para resgate</span>
           </div>
           @if (lastTransaction(); as last) {
-            <div class="last">
-              <span class="muted small">Última movimentação</span>
+            <div class="last inner">
+              <span class="muted small"
+                >Última movimentação · {{ last.createdAt | date: 'dd/MM/yyyy' }}</span
+              >
               <span>
                 <strong [class]="last.amount >= 0 ? 'positive' : 'negative'">
                   {{ last.amount > 0 ? '+' : '' }}{{ last.amount }} pts
                 </strong>
                 · {{ last.description }}
               </span>
-              <span class="muted small">{{ last.createdAt | date: 'dd/MM/yyyy' }}</span>
             </div>
           }
         } @else {
@@ -60,11 +77,11 @@
             <ul class="list scroll">
               @for (item of data.recentTransactions; track item.id) {
                 <li>
-                  <span class="spacer">
-                    {{ item.description }}<br />
+                  <span class="spacer stack">
+                    <span>{{ item.description }}</span>
                     <span class="muted small">{{ item.createdAt | date: 'dd/MM/yyyy' }}</span>
                   </span>
-                  <strong [class]="item.amount >= 0 ? 'positive' : 'negative'">
+                  <strong class="amount" [class]="item.amount >= 0 ? 'positive' : 'negative'">
                     {{ item.amount > 0 ? '+' : '' }}{{ item.amount }} pts
                   </strong>
                 </li>
@@ -77,17 +94,27 @@
       <section class="card tall">
         <h2 class="card-title">Últimos resgates</h2>
         @if (data.recentRedemptions.length === 0) {
-          <p class="empty">Você ainda não resgatou nenhum produto.</p>
+          <div class="empty-state">
+            <app-icon name="bag" [size]="34" [stroke]="1.4" />
+            <span>Nenhum resgate ainda</span>
+            <span class="small muted">Visite a loja e troque seus pontos.</span>
+          </div>
         } @else {
           <ul class="redemptions scroll">
             @for (item of data.recentRedemptions; track item.id) {
-              <li>
-                <span class="thumb" aria-hidden="true"><app-icon name="image" /></span>
-                <span class="spacer">
-                  {{ item.productName }}<br />
+              <li class="inner">
+                <span class="thumb" aria-hidden="true">
+                  @if (imageOf(item.productId); as src) {
+                    <img [src]="src" alt="" />
+                  } @else {
+                    <app-icon name="image" />
+                  }
+                </span>
+                <span class="spacer stack">
+                  <span>{{ item.quantity > 1 ? item.quantity + '× ' : '' }}{{ item.productName }}</span>
                   <span class="muted small">{{ item.createdAt | date: 'dd/MM/yyyy' }}</span>
                 </span>
-                <span class="negative">−{{ item.totalCostPoints }} pts</span>
+                <span class="negative">−{{ item.totalCostPoints }}</span>
               </li>
             }
           </ul>
@@ -102,34 +129,44 @@
       />
     </div>
 
-    <section class="card">
+    <section class="card goals-card">
       <h2 class="card-title start">Metas</h2>
       @if (goals().length === 0) {
         <p class="empty">A supervisão ainda não definiu metas.</p>
-      }
-      @for (goal of goals(); track goal.period) {
-        <div class="goal">
-          <div class="goal-head">
-            <span>{{ goal.label }}</span>
-            <span>
-              {{ goal.total }} de {{ goal.target }} atendimentos ·
-              @if ((goal.percent ?? 0) >= 100) {
-                <strong class="positive">{{ goal.percent }}% · meta batida</strong>
-              } @else {
-                {{ goal.percent }}%
-              }
-            </span>
-          </div>
-          <app-progress-bar [percent]="goal.percent ?? 0" [label]="'Meta do ' + goal.label" />
+      } @else {
+        <div class="goals">
+          @for (goal of goals(); track goal.period) {
+            <div class="goal">
+              <div class="goal-head">
+                <span>{{ goal.label }}</span>
+                @if (goal.done) {
+                  <strong class="positive">{{ goal.percent }}% · batida</strong>
+                } @else {
+                  <span>{{ goal.percent }}%</span>
+                }
+              </div>
+              <app-progress-bar [percent]="goal.percent ?? 0" [label]="'Meta: ' + goal.label" />
+              <span class="small muted">
+                {{ goal.total }} de {{ goal.target }} atendimentos
+                @if (!goal.done) {
+                  · faltam {{ goal.missing }}
+                }
+              </span>
+            </div>
+          }
         </div>
       }
     </section>
   } @else {
-    <div class="skeleton" style="height: 110px"></div>
+    <div class="stat-grid" role="status" aria-label="Carregando">
+      @for (n of [1, 2, 3, 4]; track n) {
+        <div class="skeleton" style="height: 96px"></div>
+      }
+    </div>
     <div class="grid-3">
-      <div class="skeleton" style="height: 420px"></div>
-      <div class="skeleton" style="height: 420px"></div>
-      <div class="skeleton" style="height: 420px"></div>
+      @for (n of [1, 2, 3]; track n) {
+        <div class="skeleton" style="height: 400px"></div>
+      }
     </div>
   }
 </div>

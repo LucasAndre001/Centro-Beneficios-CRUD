@@ -3,7 +3,7 @@
   class="frame"
   tabindex="0"
   role="img"
-  aria-label="Prévia da imagem no card da loja. Arraste ou use as setas para posicionar."
+  aria-label="Foto do produto no card da loja. Arraste ou use as setas para posicionar."
   (pointerdown)="onPointerDown($event)"
   (pointermove)="onPointerMove($event)"
   (pointerup)="onPointerUp()"
@@ -19,43 +19,5 @@
     [style.width.%]="box().width"
     [style.height.%]="box().height"
   />
+  <span class="hint" aria-hidden="true">arraste para posicionar</span>
 </div>
-
-<div class="controls">
-  <div class="segmented" role="radiogroup" aria-label="Encaixe da imagem">
-    <button
-      type="button"
-      role="radio"
-      [class.active]="mode() === 'cover'"
-      [attr.aria-checked]="mode() === 'cover'"
-      (click)="setMode('cover')"
-    >
-      Preencher o card
-    </button>
-    <button
-      type="button"
-      role="radio"
-      [class.active]="mode() === 'contain'"
-      [attr.aria-checked]="mode() === 'contain'"
-      (click)="setMode('contain')"
-    >
-      Imagem inteira
-    </button>
-  </div>
-
-  <label class="zoom">
-    Zoom
-    <input
-      type="range"
-      min="1"
-      [max]="maxZoom"
-      step="0.05"
-      [value]="zoom()"
-      (input)="setZoom($any($event.target).valueAsNumber)"
-    />
-  </label>
-
-  <button type="button" class="btn btn-outline" (click)="recenter()">Centralizar</button>
-</div>
-
-<p class="muted small hint">Arraste a imagem para escolher a parte que aparece no card.</p>

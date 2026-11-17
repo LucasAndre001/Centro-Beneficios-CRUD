@@ -53,15 +53,16 @@
         @switch (status()) {
           @case ('idle') {
             <p>Encaixe as peças e complete linhas.</p>
-            <button type="button" class="btn btn-big" (click)="start()">jogar</button>
+            <button type="button" class="btn btn-big" (click)="start()">Jogar</button>
           }
           @case ('paused') {
             <p>Jogo pausado</p>
-            <button type="button" class="btn btn-big" (click)="resume()">continuar</button>
+            <button type="button" class="btn btn-big" (click)="resume()">Continuar</button>
           }
           @case ('over') {
-            <p>Fim de jogo · {{ stats().score }} pontos</p>
-            <button type="button" class="btn btn-big" (click)="start()">jogar de novo</button>
+            <p class="over-title">Fim de jogo</p>
+            <p class="over-sub">{{ stats().score }} pontos · {{ stats().lines }} linhas</p>
+            <button type="button" class="btn btn-big" (click)="start()">Jogar de novo</button>
           }
         }
       </div>
@@ -90,13 +91,13 @@
     </section>
 
     @if (status() === 'playing') {
-      <button type="button" class="btn btn-outline pause" (click)="pause()">pausar</button>
+      <button type="button" class="btn btn-outline pause" (click)="pause()">Pausar (P)</button>
     }
   </aside>
 </div>
 
 <div class="touch" aria-label="Controles de toque">
-  <button type="button" class="btn" aria-label="Guardar peça" (click)="act('hold')">guardar</button>
+  <button type="button" class="btn" aria-label="Guardar peça" (click)="act('hold')">Guardar</button>
   <button type="button" class="btn" aria-label="Mover para a esquerda" (click)="act('left')">
     ◀
   </button>
@@ -105,5 +106,5 @@
     ▶
   </button>
   <button type="button" class="btn" aria-label="Descer" (click)="act('down')">▼</button>
-  <button type="button" class="btn" aria-label="Soltar" (click)="act('drop')">soltar</button>
+  <button type="button" class="btn" aria-label="Soltar" (click)="act('drop')">Soltar</button>
 </div>

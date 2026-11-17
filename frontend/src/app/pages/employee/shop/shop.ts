@@ -12,10 +12,16 @@ import { BalanceStore } from '../../../core/balance.store';
 import { DialogService } from '../../../core/dialog.service';
 import { CatalogProduct } from '../../../core/models';
 import { Icon } from '../../../shared/icon/icon';
+import { ProgressBar } from '../../../shared/progress-bar/progress-bar';
+
+type Filter = 'all' | 'affordable' | 'soldOut';
+type Sort = 'cheap' | 'expensive' | 'name';
+
+const LOW_STOCK = 2;
 
 @Component({
   selector: 'app-shop',
-  imports: [Icon],
+  imports: [Icon, ProgressBar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shop.html',
   styleUrl: './shop.css',
@@ -30,10 +36,48 @@ export class Shop implements OnInit {
   protected readonly error = signal('');
   protected readonly search = signal('');
   protected readonly redeemingId = signal<number | null>(null);
+  protected readonly filter = signal<Filter>('all');
+  protected readonly sort = signal<Sort>('cheap');
+  protected readonly lowStock = LOW_STOCK;
 
-  protected readonly visible = computed(() => {
+  private readonly matches = computed(() => {
     const term = this.search().trim().toLowerCase();
     return (this.products() ?? []).filter((p) => p.name.toLowerCase().includes(term));
+  });
+
+  protected readonly filters = computed(() => {
+    const list = this.matches();
+    return [
+      { value: 'all' as Filter, label: 'Todos', count: list.length },
+      {
+        value: 'affordable' as Filter,
+        label: 'Posso resgatar',
+        count: list.filter((p) => this.canRedeem(p)).length,
+      },
+      {
+        value: 'soldOut' as Filter,
+        label: 'Esgotados',
+        count: list.filter((p) => p.stockQuantity === 0).length,
+      },
+    ];
+  });
+
+  protected readonly visible = computed(() => {
+    const filter = this.filter();
+    const filtered = this.matches().filter(
+      (p) =>
+        filter === 'all' ||
+        (filter === 'affordable' && this.canRedeem(p)) ||
+        (filter === 'soldOut' && p.stockQuantity === 0),
+    );
+
+    const sort = this.sort();
+    return [...filtered].sort((a, b) => {
+      if (sort === 'name') {
+        return a.name.localeCompare(b.name, 'pt-BR');
+      }
+      return sort === 'cheap' ? a.pointCost - b.pointCost : b.pointCost - a.pointCost;
+    });
   });
 
   ngOnInit(): void {
@@ -44,7 +88,10 @@ export class Shop implements OnInit {
   protected load(): void {
     this.error.set('');
     this.api.catalog().subscribe({
-      next: (products) => this.products.set(products),
+      next: (products) => {
+        this.products.set(products);
+        this.balanceStore.setCatalog(products);
+      },
       error: (error) => this.error.set(errorMessage(error)),
     });
   }
@@ -53,11 +100,24 @@ export class Shop implements OnInit {
     return Math.max(0, product.pointCost - (this.balance() ?? 0));
   }
 
+  protected progress(product: CatalogProduct): number {
+    return Math.floor(((this.balance() ?? 0) * 100) / product.pointCost);
+  }
+
+  private canRedeem(product: CatalogProduct): boolean {
+    return product.stockQuantity > 0 && this.missingPoints(product) === 0;
+  }
+
   protected async redeem(product: CatalogProduct): Promise<void> {
     const balance = this.balance() ?? 0;
     const confirmed = await this.dialogs.confirm({
       title: 'Confirmar resgate',
-      message: `Deseja resgatar ${product.name}?`,
+      item: {
+        name: product.name,
+        detail: `${product.pointCost} pts · 1 unidade`,
+        imageUrl: product.imageDataUrl,
+      },
+      note: 'Depois do resgate, retire o produto com a supervisão.',
       details: [
         { label: 'Saldo atual', value: `${balance} pts` },
         { label: 'Custo', value: `− ${product.pointCost} pts` },
@@ -80,6 +140,7 @@ export class Shop implements OnInit {
             p.id === product.id ? { ...p, stockQuantity: p.stockQuantity - 1 } : p,
           ),
         );
+        this.balanceStore.setCatalog(this.products() ?? []);
         this.dialogs.success(
           'Resgate realizado',
           `Você resgatou ${product.name} por ${product.pointCost} pts.`,

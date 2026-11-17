@@ -17,40 +17,49 @@
   <div class="info">
     <section class="card">
       <h2 class="card-title start">Como jogar</h2>
-      <div class="keys">
-        <span><kbd>←</kbd><kbd>→</kbd> mover</span>
-        <span><kbd>↑</kbd> ou <kbd>X</kbd> girar</span>
-        <span><kbd>Z</kbd> girar ao contrário</span>
-        <span><kbd>↓</kbd> descer</span>
-        <span><kbd>Espaço</kbd> soltar</span>
-        <span><kbd>C</kbd> guardar peça</span>
-        <span><kbd>P</kbd> pausar</span>
-      </div>
-      <p class="muted small">
-        Linhas valem 100, 300, 500 ou 800 pontos (1 a 4 de uma vez), multiplicados pelo nível. A
-        cada 10 linhas o nível sobe e as peças caem mais rápido. No celular, use os botões abaixo do
-        tabuleiro.
+      <dl class="keys">
+        <dt><kbd>←</kbd><kbd>→</kbd></dt>
+        <dd>mover</dd>
+        <dt><kbd>↑</kbd><kbd>X</kbd></dt>
+        <dd>girar</dd>
+        <dt><kbd>Z</kbd></dt>
+        <dd>girar ao contrário</dd>
+        <dt><kbd>↓</kbd></dt>
+        <dd>descer mais rápido</dd>
+        <dt><kbd>Espaço</kbd></dt>
+        <dd>soltar a peça</dd>
+        <dt><kbd>C</kbd></dt>
+        <dd>guardar a peça</dd>
+        <dt><kbd>P</kbd></dt>
+        <dd>pausar</dd>
+      </dl>
+      <p class="muted small rules">
+        1, 2, 3 ou 4 linhas de uma vez valem 100, 300, 500 ou 800 pontos, vezes o nível. A cada 10
+        linhas o nível sobe. No celular, use os botões abaixo do tabuleiro.
       </p>
     </section>
 
     <section class="card">
-      <h2 class="card-title start">Recorde</h2>
-      <div class="record">
-        <span class="muted small">Seu melhor</span>
-        <span class="record-value">{{ myStats()?.bestScore ?? 0 | number }}</span>
-        @if (myStats()?.position) {
-          <span class="muted small"
-            >{{ myStats()?.position }}º lugar · {{ myStats()?.plays }} partidas</span
-          >
-        }
-      </div>
-      @if (leader(); as top) {
-        <div class="record">
-          <span class="muted small">Melhor da equipe</span>
-          <span
-            >{{ top.bestScore | number }} · {{ top.userId === userId ? 'Você' : top.name }}</span
-          >
+      <h2 class="card-title start">Seu recorde</h2>
+      <span class="record-value">{{ myStats()?.bestScore ?? 0 | number }}</span>
+      @if (myStats()?.position) {
+        <span class="muted small"
+          >{{ myStats()?.position }}º lugar · {{ myStats()?.plays }}
+          {{ myStats()?.plays === 1 ? 'partida' : 'partidas' }}</span
+        >
+      } @else {
+        <span class="muted small">Jogue uma partida para entrar no ranking.</span>
+      }
+      @if (nextPlace(); as next) {
+        <div class="next">
+          <span class="small">Faltam {{ next.points | number }} para o {{ next.position }}º lugar</span>
+          <app-progress-bar
+            [percent]="next.percent"
+            [label]="'Progresso até o ' + next.position + 'º lugar'"
+          />
         </div>
+      } @else if (myStats()?.position === 1) {
+        <span class="positive small">Você é o 1º lugar!</span>
       }
     </section>
 

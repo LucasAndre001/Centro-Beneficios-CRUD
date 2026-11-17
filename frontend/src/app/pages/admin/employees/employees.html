@@ -1,7 +1,19 @@
 <div class="page">
-  <section class="card">
-    <h1 class="card-title start">Funcionários</h1>
+  <div class="page-head">
+    <div class="page-head-text">
+      <h1 class="page-title">Funcionários</h1>
+      <p class="page-sub">
+        Para lançamentos do dia a dia, use os atalhos da tela inicial. Aqui ficam cadastro e
+        correções.
+      </p>
+    </div>
+    <button type="button" class="btn" (click)="editing.set(null)">
+      <app-icon name="user-plus" />
+      Novo funcionário
+    </button>
+  </div>
 
+  <section class="card">
     <div class="toolbar">
       <label class="search">
         <app-icon name="search" />
@@ -13,22 +25,26 @@
           (input)="search.set($any($event.target).value)"
         />
       </label>
-      <label class="check">
-        <input
-          type="checkbox"
-          [checked]="showInactive()"
-          (change)="showInactive.set($any($event.target).checked)"
-        />
-        Mostrar inativos
-      </label>
-      <button
-        type="button"
-        class="round-add"
-        aria-label="Novo funcionário"
-        (click)="editing.set(null)"
-      >
-        <app-icon name="plus" [size]="26" />
-      </button>
+      <div class="segmented" role="radiogroup" aria-label="Situação">
+        <button
+          type="button"
+          role="radio"
+          [class.active]="!showInactive()"
+          [attr.aria-checked]="!showInactive()"
+          (click)="showInactive.set(false)"
+        >
+          Ativos · {{ counts().active }}
+        </button>
+        <button
+          type="button"
+          role="radio"
+          [class.active]="showInactive()"
+          [attr.aria-checked]="showInactive()"
+          (click)="showInactive.set(true)"
+        >
+          Inativos · {{ counts().inactive }}
+        </button>
+      </div>
     </div>
 
     <div class="table-wrap">
@@ -37,17 +53,17 @@
       } @else if (employees() === null) {
         <p class="empty">Carregando...</p>
       } @else if (visible().length === 0) {
-        <p class="empty">Nenhum funcionário encontrado.</p>
+        <p class="empty">
+          {{ showInactive() ? 'Nenhum funcionário inativo.' : 'Nenhum funcionário encontrado.' }}
+        </p>
       } @else {
-        <table class="data">
+        <table class="data people">
           <thead>
             <tr>
-              <th scope="col">id</th>
-              <th scope="col">nome</th>
-              <th scope="col">e-mail</th>
-              <th scope="col">atend. (mês)</th>
-              <th scope="col">fundos</th>
-              <th scope="col">meta (mês)</th>
+              <th scope="col">Funcionário</th>
+              <th scope="col">Atend. (mês)</th>
+              <th scope="col" class="goal-col">Meta do mês</th>
+              <th scope="col">Fundos</th>
               <th scope="col"><span class="sr-only">Ações</span></th>
             </tr>
           </thead>
@@ -55,23 +71,38 @@
             @for (employee of visible(); track employee.id) {
               @let month = monthly().get(employee.id);
               <tr [class.inactive]="!employee.isActive">
-                <td class="muted">{{ employee.id }}</td>
                 <td>
-                  {{ employee.name }}
-                  @if (!employee.isActive) {
-                    <span class="badge outline">inativo</span>
+                  <span class="person-cell">
+                    <span class="avatar" aria-hidden="true">{{ initials(employee.name) }}</span>
+                    <span class="stack">
+                      <span>{{ employee.name }}</span>
+                      <span class="small muted">{{ employee.email }}</span>
+                    </span>
+                  </span>
+                </td>
+                <td>{{ month?.total ?? '—' }}</td>
+                <td>
+                  @if (month?.percent != null) {
+                    <span class="goal">
+                      <app-progress-bar
+                        class="grow"
+                        [percent]="month!.percent!"
+                        [label]="'Meta do mês de ' + employee.name"
+                      />
+                      <span class="pct">{{ month?.percent }}%</span>
+                    </span>
+                  } @else {
+                    <span class="muted">—</span>
                   }
                 </td>
-                <td>{{ employee.email }}</td>
-                <td>{{ month?.total ?? '—' }}</td>
-                <td>{{ employee.pointsBalance }}</td>
-                <td>{{ month?.percent != null ? month?.percent + '%' : '—' }}</td>
+                <td>{{ employee.pointsBalance }} pts</td>
                 <td class="actions">
                   @if (employee.isActive) {
                     <button
                       type="button"
                       class="icon-btn"
                       [attr.aria-label]="'Editar ' + employee.name"
+                      title="Editar"
                       (click)="editing.set(employee)"
                     >
                       <app-icon name="edit" />
@@ -79,7 +110,8 @@
                     <button
                       type="button"
                       class="icon-btn"
-                      [attr.aria-label]="'Excluir ' + employee.name"
+                      [attr.aria-label]="'Desativar ' + employee.name"
+                      title="Desativar"
                       (click)="deactivate(employee)"
                     >
                       <app-icon name="trash" />
@@ -89,6 +121,7 @@
                       type="button"
                       class="icon-btn"
                       [attr.aria-label]="'Reativar ' + employee.name"
+                      title="Reativar"
                       (click)="reactivate(employee)"
                     >
                       <app-icon name="restore" />

@@ -14,6 +14,7 @@ import { errorMessage } from '../../../core/api-error';
 import { isoToBr, todayIso } from '../../../core/dates';
 import { DialogService } from '../../../core/dialog.service';
 import { Employee } from '../../../core/models';
+import { initialsOf } from '../../../core/text';
 import { Modal } from '../../../shared/modal/modal';
 
 @Component({
@@ -42,6 +43,7 @@ export class EmployeeFormDialog implements OnInit {
     attendance: [0, Validators.min(0)],
   });
 
+  protected subtitle = 'Preencha os dados de acesso';
   protected readonly saving = signal(false);
   protected readonly error = signal('');
   private originalAttendance = 0;
@@ -54,6 +56,7 @@ export class EmployeeFormDialog implements OnInit {
       return;
     }
 
+    this.subtitle = `Ativo desde ${isoToBr(employee.createdAt)}`;
     this.form.patchValue({
       name: employee.name,
       email: employee.email,
@@ -75,6 +78,10 @@ export class EmployeeFormDialog implements OnInit {
         this.form.controls.attendance.setValue(day.total);
       },
     });
+  }
+
+  protected initials(name: string): string {
+    return initialsOf(name);
   }
 
   protected pointsChanged(): boolean {

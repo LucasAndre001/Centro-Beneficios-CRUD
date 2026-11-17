@@ -15,11 +15,16 @@ import { ProductSummary } from '../../../core/models';
 import { Icon } from '../../../shared/icon/icon';
 import { ProductFormDialog } from './product-form-dialog';
 
+type Filter = 'all' | 'Published' | 'Draft' | 'Inactive';
+
+const LOW_STOCK = 2;
+
 @Component({
   selector: 'app-products',
   imports: [Icon, ProductFormDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './products.html',
+  styleUrl: './products.css',
 })
 export class Products implements OnInit {
   private readonly api = inject(AdminApi);
@@ -30,7 +35,14 @@ export class Products implements OnInit {
 
   protected readonly products = signal<ProductSummary[] | null>(null);
   protected readonly search = signal('');
-  protected readonly showInactive = signal(false);
+  protected readonly filter = signal<Filter>('all');
+  protected readonly lowStock = LOW_STOCK;
+  protected readonly filters: { value: Filter; label: string }[] = [
+    { value: 'all', label: 'Todos' },
+    { value: 'Published', label: 'Publicados' },
+    { value: 'Draft', label: 'Rascunhos' },
+    { value: 'Inactive', label: 'Excluídos' },
+  ];
   protected readonly error = signal('');
   protected readonly editingId = signal<number | null | undefined>(undefined);
 
@@ -38,9 +50,21 @@ export class Products implements OnInit {
     const term = this.search().trim().toLowerCase();
     return (this.products() ?? []).filter(
       (product) =>
-        (this.showInactive() || product.status !== 'Inactive') &&
+        (this.filter() === 'all'
+          ? product.status !== 'Inactive'
+          : product.status === this.filter()) &&
         product.name.toLowerCase().includes(term),
     );
+  });
+
+  protected readonly summary = computed(() => {
+    const list = this.products() ?? [];
+    const published = list.filter((p) => p.status === 'Published');
+    return {
+      published: published.length,
+      drafts: list.filter((p) => p.status === 'Draft').length,
+      low: published.filter((p) => p.stockQuantity <= LOW_STOCK).length,
+    };
   });
 
   ngOnInit(): void {

@@ -18,3 +18,25 @@ export function isoToBr(iso: string): string {
   const [year, month, day] = iso.slice(0, 10).split('-');
   return `${day}/${month}/${year}`;
 }
+
+export function relativeTime(iso: string, now = new Date()): string {
+  const date = new Date(iso);
+  const minutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+
+  if (minutes < 1) {
+    return 'agora';
+  }
+  if (minutes < 60) {
+    return `há ${minutes} min`;
+  }
+  if (toIsoDate(date) === toIsoDate(now)) {
+    return `há ${Math.floor(minutes / 60)} h`;
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (toIsoDate(date) === toIsoDate(yesterday)) {
+    return 'ontem';
+  }
+  return isoToBr(toIsoDate(date));
+}

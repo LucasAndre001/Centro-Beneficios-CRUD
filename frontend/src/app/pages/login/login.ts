@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 import { errorMessage } from '../../core/api-error';
 import { AuthService } from '../../core/auth.service';
 import { DialogService } from '../../core/dialog.service';
+import { ThemeService } from '../../core/theme.service';
 import { Icon } from '../../shared/icon/icon';
 
 const SLOW_SERVER_DELAY_MS = 4000;
@@ -20,11 +21,20 @@ export class Login {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly dialogs = inject(DialogService);
+  protected readonly theme = inject(ThemeService);
 
   protected readonly form = inject(NonNullableFormBuilder).group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
+
+  protected readonly benefits = [
+    'Acompanhe seus atendimentos do mês',
+    'Junte pontos e confira seu extrato',
+    'Resgate produtos na loja de benefícios',
+    'Jogue e dispute o ranking',
+    'Veja o status das campanhas ativas',
+  ];
 
   protected readonly loading = signal(false);
   protected readonly slowServer = signal(false);

@@ -25,7 +25,13 @@ export type IconName =
   | 'image'
   | 'user-plus'
   | 'trophy'
-  | 'receipt';
+  | 'receipt'
+  | 'sun'
+  | 'moon'
+  | 'chevron-down'
+  | 'logout'
+  | 'alert'
+  | 'bag';
 
 @Component({
   selector: 'app-icon',
@@ -144,6 +150,30 @@ export type IconName =
         @case ('receipt') {
           <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z" />
           <path d="M9 8h6M9 12h6M9 16h3" />
+        }
+        @case ('sun') {
+          <circle cx="12" cy="12" r="4" />
+          <path
+            d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+          />
+        }
+        @case ('moon') {
+          <path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" />
+        }
+        @case ('chevron-down') {
+          <path d="M6 9l6 6 6-6" />
+        }
+        @case ('logout') {
+          <path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3" />
+          <path d="M10 8l-4 4 4 4M6 12h10" />
+        }
+        @case ('alert') {
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v6M12 16.5v.5" />
+        }
+        @case ('bag') {
+          <path d="M5 8h14l-1 12H6L5 8z" />
+          <path d="M9 11V6a3 3 0 016 0v5" />
         }
         @case ('trophy') {
           <path d="M8 4h8v5a4 4 0 01-8 0V4z" />

@@ -9,7 +9,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { firstValueFrom, startWith } from 'rxjs';
 import { AdminApi } from '../../../api/admin-api.service';
 import { errorMessage } from '../../../core/api-error';
 import { DialogService } from '../../../core/dialog.service';
@@ -42,9 +43,13 @@ export class ProductFormDialog implements OnInit {
   });
 
   protected readonly image = signal<string | null>(null);
-  private readonly cropper = viewChild(ImageCropper);
+  protected readonly cropper = viewChild(ImageCropper);
   private newFileChosen = false;
   protected readonly dragging = signal(false);
+  protected readonly stock = toSignal(
+    this.form.controls.stockQuantity.valueChanges.pipe(startWith(this.form.controls.stockQuantity.value)),
+    { initialValue: 0 },
+  );
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal('');

@@ -11,7 +11,10 @@ import { RouterLink } from '@angular/router';
 import { AdminApi } from '../../../api/admin-api.service';
 import { errorMessage } from '../../../core/api-error';
 import { AuthService } from '../../../core/auth.service';
-import { AdminDashboard, GoalPeriod } from '../../../core/models';
+import { daysAgoIso, relativeTime } from '../../../core/dates';
+import { readLastSeen, redemptionsSeenKey } from '../../../core/last-seen';
+import { AdminDashboard, AdminRedemption, GoalPeriod } from '../../../core/models';
+import { greeting, initialsOf } from '../../../core/text';
 import { GameRankingCard } from '../../../shared/game-ranking-card/game-ranking-card';
 import { Icon } from '../../../shared/icon/icon';
 import { ProgressBar } from '../../../shared/progress-bar/progress-bar';
@@ -52,6 +55,8 @@ export class AdminHome {
   private readonly api = inject(AdminApi);
   protected readonly user = inject(AuthService).user;
   protected readonly today = new Date();
+  protected readonly greeting = greeting(this.today);
+  private readonly lastSeen = readLastSeen(redemptionsSeenKey(this.user()?.id));
 
   protected readonly period = signal<GoalPeriod>('Month');
   protected readonly periodTabs: TabOption<GoalPeriod>[] = [
@@ -61,6 +66,9 @@ export class AdminHome {
   ];
 
   protected readonly dashboard = signal<AdminDashboard | null>(null);
+  private readonly dayDashboard = signal<AdminDashboard | null>(null);
+  private readonly monthDashboard = signal<AdminDashboard | null>(null);
+  protected readonly recent = signal<AdminRedemption[] | null>(null);
   protected readonly error = signal('');
   protected readonly dialog = signal<OpenDialog | null>(null);
   protected readonly dialogEmployeeId = computed(() => {
@@ -85,16 +93,57 @@ export class AdminHome {
     );
     return data.attendanceRanking.map((item) => ({
       ...item,
+      initials: initialsOf(item.name),
       balance: balances.get(item.employeeId) ?? 0,
     }));
   });
 
+  protected readonly daySummary = computed(() => {
+    const data = this.dayDashboard();
+    if (!data) {
+      return null;
+    }
+    const people = data.attendanceRanking.length;
+    return {
+      total: data.attendanceRanking.reduce((sum, row) => sum + row.total, 0),
+      teamTarget: data.target && people ? data.target * people : null,
+    };
+  });
+
+  protected readonly month = computed(() => {
+    const data = this.monthDashboard();
+    if (!data) {
+      return null;
+    }
+    return {
+      active: data.attendanceRanking.length,
+      points: data.valueRanking.reduce((sum, row) => sum + row.pointsBalance, 0),
+      behind: data.target
+        ? data.attendanceRanking.filter((row) => (row.percent ?? 0) < 50).length
+        : null,
+    };
+  });
+
+  protected readonly freshCount = computed(
+    () => (this.recent() ?? []).filter((item) => this.isNew(item)).length,
+  );
+
   constructor() {
     effect(() => this.load(this.period()));
+    this.loadSummary();
   }
 
   protected reload(): void {
     this.load(this.period());
+    this.loadSummary();
+  }
+
+  protected isNew(item: AdminRedemption): boolean {
+    return this.lastSeen !== null && new Date(item.createdAt).getTime() > this.lastSeen;
+  }
+
+  protected when(iso: string): string {
+    return relativeTime(iso);
   }
 
   protected openAttendance(employeeId: number | null = null): void {
@@ -114,6 +163,15 @@ export class AdminHome {
     this.api.dashboard(period).subscribe({
       next: (dashboard) => this.dashboard.set(dashboard),
       error: (error) => this.error.set(errorMessage(error)),
+    });
+  }
+
+  private loadSummary(): void {
+    this.api.dashboard('Day').subscribe({ next: (data) => this.dayDashboard.set(data) });
+    this.api.dashboard('Month').subscribe({ next: (data) => this.monthDashboard.set(data) });
+    this.api.redemptions('', daysAgoIso(29), 50).subscribe({
+      next: (items) => this.recent.set(items),
+      error: () => this.recent.set([]),
     });
   }
 }

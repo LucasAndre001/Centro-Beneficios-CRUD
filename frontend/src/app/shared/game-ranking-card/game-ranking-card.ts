@@ -7,20 +7,25 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { GamesApi } from '../../api/games-api.service';
 import { GameInfo, GameRankingItem } from '../../core/models';
 import { RankingList } from '../ranking-list/ranking-list';
 import { TabOption, Tabs } from '../tabs/tabs';
 
-const COMING_SOON = '__em-breve__';
-
 @Component({
   selector: 'app-game-ranking-card',
-  imports: [Tabs, RankingList, RouterLink],
+  imports: [Tabs, RankingList, RouterLink, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './game-ranking-card.html',
   host: { class: 'card' },
+  styles: `
+    .center {
+      margin: 0;
+      text-align: center;
+    }
+  `,
 })
 export class GameRankingCard {
   private readonly gamesApi = inject(GamesApi);
@@ -34,10 +39,23 @@ export class GameRankingCard {
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
 
-  protected readonly tabs = computed<TabOption<string>[]>(() => [
-    ...this.games().map((game) => ({ value: game.key, label: game.name })),
-    { value: COMING_SOON, label: 'Em breve', disabled: true },
-  ]);
+  protected readonly tabs = computed<TabOption<string>[]>(() =>
+    this.games().map((game) => ({ value: game.key, label: game.name })),
+  );
+
+  protected readonly gameName = computed(
+    () => this.games().find((game) => game.key === this.selected())?.name ?? '',
+  );
+
+  protected readonly gap = computed(() => {
+    const rows = this.ranking();
+    const index = rows.findIndex((row) => row.userId === this.highlightUserId());
+    if (index <= 0) {
+      return null;
+    }
+    const ahead = rows[index - 1];
+    return { position: ahead.position, points: ahead.bestScore - rows[index].bestScore };
+  });
 
   constructor() {
     this.gamesApi.list().subscribe({

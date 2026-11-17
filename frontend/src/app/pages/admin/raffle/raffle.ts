@@ -26,7 +26,7 @@ import { Icon } from '../../../shared/icon/icon';
     }
 
     .soon app-icon {
-      color: var(--sky);
+      color: var(--accent);
     }
 
     .soon p {

@@ -17,15 +17,15 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   `,
   styles: `
     .track {
-      height: var(--bar-height, 14px);
-      background: var(--grey);
-      border-radius: 3px;
+      height: var(--bar-height, 12px);
+      background: var(--track);
+      border-radius: 999px;
       overflow: hidden;
     }
 
     .fill {
       height: 100%;
-      background: var(--fill, var(--navy));
+      background: var(--fill);
       transition: width 0.4s ease;
     }
 

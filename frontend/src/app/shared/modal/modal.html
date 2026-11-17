@@ -9,7 +9,13 @@
   tabindex="-1"
 >
   <header class="head">
-    <h2 [id]="titleId">{{ heading() }}</h2>
+    <ng-content select="[modalLead]" />
+    <div class="titles">
+      <h2 [id]="titleId">{{ heading() }}</h2>
+      @if (subtitle()) {
+        <span class="small muted">{{ subtitle() }}</span>
+      }
+    </div>
     @if (closable()) {
       <button type="button" class="icon-btn" aria-label="Fechar" (click)="close()">
         <app-icon name="close" />

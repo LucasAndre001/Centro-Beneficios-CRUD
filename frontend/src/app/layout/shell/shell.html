@@ -7,16 +7,72 @@
     aria-controls="main-nav"
     (click)="toggleMenu()"
   >
-    <app-icon name="menu" [size]="26" [stroke]="1.6" />
+    <app-icon name="menu" [size]="24" [stroke]="1.6" />
   </button>
   <img src="logo.png" alt="Canaã Telecom" class="logo" />
   <span class="brand">Centro de benefícios</span>
+  @if (pageLabel()) {
+    <span class="crumb-sep" aria-hidden="true">/</span>
+    <span class="crumb">{{ pageLabel() }}</span>
+  }
   <span class="spacer"></span>
-  <span class="user">
-    <span class="avatar" aria-hidden="true">{{ initials() }}</span>
-    <span class="user-name">{{ user()?.name }}</span>
-  </span>
-  <button type="button" class="btn logout" (click)="logout()">sair</button>
+
+  <button
+    type="button"
+    class="theme-btn"
+    [attr.aria-label]="theme.isDark() ? 'Mudar para modo claro' : 'Mudar para modo escuro'"
+    [attr.title]="theme.isDark() ? 'Modo claro' : 'Modo escuro'"
+    (click)="theme.toggle()"
+  >
+    <app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="20" />
+  </button>
+
+  <div class="user-area" #userArea>
+    <button
+      type="button"
+      class="user-btn"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="userMenuOpen()"
+      aria-label="Menu do usuário"
+      (click)="userMenuOpen.set(!userMenuOpen())"
+    >
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="user-name">{{ user()?.name }}</span>
+      <app-icon name="chevron-down" [size]="16" [stroke]="2" />
+    </button>
+
+    @if (userMenuOpen()) {
+      <div class="user-menu" role="menu" aria-label="Menu do usuário">
+        <div class="user-info">
+          <span class="avatar big" aria-hidden="true">{{ initials() }}</span>
+          <span class="stack">
+            <span>{{ user()?.name }}</span>
+            <span class="small muted">{{ user()?.email }}</span>
+          </span>
+        </div>
+        <div class="divider"></div>
+        <span id="theme-label" class="menu-label">Tema</span>
+        <div class="segmented theme-choice" role="radiogroup" aria-labelledby="theme-label">
+          @for (option of themeOptions; track option.value) {
+            <button
+              type="button"
+              role="radio"
+              [class.active]="theme.preference() === option.value"
+              [attr.aria-checked]="theme.preference() === option.value"
+              (click)="theme.set(option.value)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+        <span class="menu-hint">Automático segue o tema do celular ou computador.</span>
+        <button type="button" role="menuitem" class="menu-item" (click)="logout()">
+          <app-icon name="logout" />
+          Sair
+        </button>
+      </div>
+    }
+  </div>
 </header>
 
 <div class="layout" [class.collapsed]="!menuOpen()">
@@ -39,12 +95,15 @@
         @if (item.soon) {
           <span class="soon">em breve</span>
         }
+        @if (item.path === '/loja' && affordable()) {
+          <span class="available">{{ affordable() }} disponíveis</span>
+        }
       </a>
     }
 
     @if (!isAdmin()) {
       <div class="balance">
-        <span class="small muted">Seu saldo</span>
+        <span class="balance-label">Seu saldo</span>
         <span class="balance-value">{{ balance() ?? '—' }} pts</span>
       </div>
     }

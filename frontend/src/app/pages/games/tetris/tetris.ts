@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   output,
@@ -10,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ScoreSubmission } from '../../../core/models';
+import { ThemeService } from '../../../core/theme.service';
 import { COLUMNS, Matrix, PieceKind, ROWS, SHAPES, TetrisEngine } from './tetris-engine';
 
 type Status = 'idle' | 'playing' | 'paused' | 'over';
@@ -32,8 +34,6 @@ const COLORS: Record<PieceKind, string> = {
   L: '#9a97ee',
 };
 
-const BOARD_BACKGROUND = '#131059';
-const GRID_LINE = '#1f1b72';
 
 const GAME_KEYS = new Set([
   'ArrowLeft',
@@ -75,8 +75,25 @@ export class Tetris {
   private lastTime = 0;
   private elapsed = 0;
 
+  private readonly theme = inject(ThemeService);
+  private boardColor = '';
+  private gridColor = '';
+  private ready = false;
+
   constructor() {
-    afterNextRender(() => this.draw());
+    afterNextRender(() => {
+      this.ready = true;
+      this.draw();
+    });
+
+    // O canvas não lê CSS sozinho: ao trocar o tema, busca as cores novas e redesenha
+    effect(() => {
+      this.theme.isDark();
+      this.boardColor = '';
+      if (this.ready) {
+        this.draw();
+      }
+    });
     inject(DestroyRef).onDestroy(() => cancelAnimationFrame(this.frameId));
   }
 
@@ -240,7 +257,13 @@ export class Tetris {
       return;
     }
 
-    context.fillStyle = BOARD_BACKGROUND;
+    if (!this.boardColor) {
+      const styles = getComputedStyle(this.canvas().nativeElement);
+      this.boardColor = styles.getPropertyValue('--board').trim() || '#131059';
+      this.gridColor = styles.getPropertyValue('--board-grid').trim() || '#1f1b72';
+    }
+
+    context.fillStyle = this.boardColor;
     context.fillRect(0, 0, this.width, this.height);
     this.drawGrid(context);
 
@@ -275,7 +298,7 @@ export class Tetris {
   }
 
   private drawGrid(context: CanvasRenderingContext2D): void {
-    context.strokeStyle = GRID_LINE;
+    context.strokeStyle = this.gridColor;
     context.lineWidth = 1;
     context.beginPath();
     for (let col = 1; col < COLUMNS; col++) {

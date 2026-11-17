@@ -17,12 +17,18 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './modal.html',
   styleUrl: './modal.css',
-  host: { '(document:keydown.escape)': 'close()' },
+  host: {
+    '(document:keydown.escape)': 'close()',
+    '[class.is-drawer]': "size() === 'drawer'",
+    '[class.is-centered]': 'centered()',
+  },
 })
 export class Modal {
   readonly heading = input.required<string>();
-  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly size = input<'sm' | 'md' | 'lg' | 'xl' | 'drawer'>('md');
+  readonly subtitle = input('');
   readonly closable = input(true);
+  readonly centered = input(false);
   readonly closed = output<void>();
 
   protected readonly titleId = `modal-title-${nextId++}`;

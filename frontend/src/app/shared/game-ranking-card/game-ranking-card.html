@@ -1,7 +1,7 @@
-<h2 class="card-title">Ranking do jogo</h2>
+<h2 class="card-title">Ranking {{ gameName() ? 'do ' + gameName() : 'dos jogos' }}</h2>
 
-@if (games().length > 0) {
-  <app-tabs label="Jogos disponíveis" [options]="tabs()" [(value)]="selected" />
+@if (games().length > 1) {
+  <app-tabs label="Jogos disponíveis" variant="pill" [options]="tabs()" [(value)]="selected" />
 }
 
 @if (loading()) {
@@ -12,6 +12,11 @@
   <p class="empty">Ninguém jogou ainda. Seja o primeiro!</p>
 } @else {
   <app-ranking-list [rows]="ranking()" [highlightUserId]="highlightUserId()" />
+  @if (gap(); as next) {
+    <p class="muted small center">
+      Faltam {{ next.points | number }} pontos para o {{ next.position }}º lugar
+    </p>
+  }
 }
 
 @if (showPlayLink()) {

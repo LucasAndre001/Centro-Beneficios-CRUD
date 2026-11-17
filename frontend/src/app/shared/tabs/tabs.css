@@ -11,15 +11,16 @@
   background: transparent;
   color: var(--muted);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .tab.active {
-  color: var(--sky);
+  color: var(--accent);
   font-weight: 600;
 }
 
 .tab:disabled {
-  color: #afbee4;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -32,41 +33,60 @@
 }
 
 .underline .tab.active {
-  background: var(--navy);
+  background: var(--inner);
 }
 
 .pill {
-  background: var(--navy);
+  flex-wrap: nowrap;
+  background: var(--inner);
   border-radius: 8px;
   padding: 4px;
 }
 
 .pill .tab {
-  min-height: 36px;
+  flex: 1;
+  min-height: 38px;
   border-radius: 6px;
 }
 
 .pill .tab.active {
-  background: var(--blue);
+  background: var(--card);
+}
+
+.surface {
+  background: var(--page-surface);
+  border: 1px solid var(--page-line);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.surface .tab {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 7px;
+  color: var(--page-text);
+}
+
+.surface .tab.active {
+  background: var(--card);
+  color: var(--on-card);
+  font-weight: 400;
 }
 
 .boxed {
-  border-bottom: 2px solid var(--blue);
+  border-bottom: 2px solid var(--card);
 }
 
 .boxed .tab {
   min-height: 46px;
   padding: 0 20px;
   border-radius: 8px 8px 0 0;
-  background: #eef1f8;
-  color: #3e4c70;
+  background: var(--page-surface);
+  color: var(--page-muted);
 }
 
 .boxed .tab.active {
-  background: var(--blue);
-  color: #fff;
-}
-
-.boxed .tab:disabled {
-  color: #6b7898;
+  background: var(--card);
+  color: var(--on-card);
+  font-weight: 400;
 }

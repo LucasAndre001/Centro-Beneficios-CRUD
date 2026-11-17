@@ -12,6 +12,7 @@ import { errorMessage } from '../../core/api-error';
 import { AuthService } from '../../core/auth.service';
 import { DialogService } from '../../core/dialog.service';
 import { GameInfo, GameRankingItem, MyGameStats, ScoreSubmission } from '../../core/models';
+import { ProgressBar } from '../../shared/progress-bar/progress-bar';
 import { RankingList } from '../../shared/ranking-list/ranking-list';
 import { TabOption, Tabs } from '../../shared/tabs/tabs';
 import { Tetris } from './tetris/tetris';
@@ -20,7 +21,7 @@ const COMING_SOON = '__em-breve__';
 
 @Component({
   selector: 'app-games',
-  imports: [Tabs, Tetris, DecimalPipe, RankingList],
+  imports: [Tabs, Tetris, DecimalPipe, RankingList, ProgressBar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './games.html',
   styleUrl: './games.css',
@@ -41,7 +42,22 @@ export class Games implements OnInit {
     { value: COMING_SOON, label: 'Novo jogo · em breve', disabled: true },
   ]);
 
-  protected readonly leader = computed(() => this.ranking()[0] ?? null);
+  protected readonly nextPlace = computed(() => {
+    const best = this.myStats()?.bestScore;
+    const position = this.myStats()?.position;
+    if (!best || !position || position === 1) {
+      return null;
+    }
+    const ahead = this.ranking().find((row) => row.position === position - 1);
+    if (!ahead) {
+      return null;
+    }
+    return {
+      position: ahead.position,
+      points: ahead.bestScore - best,
+      percent: Math.floor((best * 100) / ahead.bestScore),
+    };
+  });
 
   ngOnInit(): void {
     this.gamesApi.list().subscribe({

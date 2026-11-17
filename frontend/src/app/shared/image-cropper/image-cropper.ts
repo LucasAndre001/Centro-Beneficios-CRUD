@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-type FitMode = 'cover' | 'contain';
+export type FitMode = 'cover' | 'contain';
 
 interface Point {
   x: number;
@@ -37,9 +37,9 @@ const MAX_ZOOM = 3;
 export class ImageCropper {
   readonly src = input.required<string>();
 
-  protected readonly maxZoom = MAX_ZOOM;
-  protected readonly mode = signal<FitMode>('cover');
-  protected readonly zoom = signal(1);
+  readonly maxZoom = MAX_ZOOM;
+  readonly mode = signal<FitMode>('cover');
+  readonly zoom = signal(1);
   protected readonly position = signal<Point>({ x: 0, y: 0 });
   readonly changed = signal(false);
 
@@ -92,14 +92,14 @@ export class ImageCropper {
     return canvas.toDataURL('image/jpeg', 0.85);
   }
 
-  protected setMode(mode: FitMode): void {
+  setMode(mode: FitMode): void {
     this.mode.set(mode);
     this.zoom.set(1);
     this.center();
     this.changed.set(true);
   }
 
-  protected setZoom(value: number): void {
+  setZoom(value: number): void {
     const previous = this.scale();
     this.zoom.set(Math.min(MAX_ZOOM, Math.max(1, value)));
     const ratio = this.scale() / previous;
@@ -120,7 +120,7 @@ export class ImageCropper {
     });
   }
 
-  protected recenter(): void {
+  recenter(): void {
     this.center();
     this.changed.set(true);
   }

@@ -13,14 +13,17 @@ import { AdminApi } from '../../../api/admin-api.service';
 import { errorMessage } from '../../../core/api-error';
 import { DialogService } from '../../../core/dialog.service';
 import { AttendanceRankingItem, Employee } from '../../../core/models';
+import { initialsOf } from '../../../core/text';
 import { Icon } from '../../../shared/icon/icon';
+import { ProgressBar } from '../../../shared/progress-bar/progress-bar';
 import { EmployeeFormDialog } from './employee-form-dialog';
 
 @Component({
   selector: 'app-employees',
-  imports: [Icon, EmployeeFormDialog],
+  imports: [Icon, ProgressBar, EmployeeFormDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './employees.html',
+  styleUrl: './employees.css',
 })
 export class Employees implements OnInit {
   private readonly api = inject(AdminApi);
@@ -40,9 +43,15 @@ export class Employees implements OnInit {
     const term = this.search().trim().toLowerCase();
     return (this.employees() ?? []).filter(
       (employee) =>
-        (this.showInactive() || employee.isActive) &&
+        employee.isActive !== this.showInactive() &&
         (employee.name.toLowerCase().includes(term) || employee.email.toLowerCase().includes(term)),
     );
+  });
+
+  protected readonly counts = computed(() => {
+    const list = this.employees() ?? [];
+    const active = list.filter((employee) => employee.isActive).length;
+    return { active, inactive: list.length - active };
   });
 
   ngOnInit(): void {
@@ -68,11 +77,15 @@ export class Employees implements OnInit {
     });
   }
 
+  protected initials(name: string): string {
+    return initialsOf(name);
+  }
+
   protected async deactivate(employee: Employee): Promise<void> {
     const confirmed = await this.dialogs.confirm({
-      title: 'Excluir funcionário?',
+      title: 'Desativar funcionário?',
       message: `${employee.name} não poderá mais entrar no sistema. O histórico de pontos, atendimentos e resgates é mantido.`,
-      confirmLabel: 'Excluir',
+      confirmLabel: 'Desativar',
       danger: true,
     });
 
@@ -100,7 +113,7 @@ export class Employees implements OnInit {
           this.dialogs.success('Funcionário reativado', `${employee.name} pode entrar novamente.`);
         } else {
           this.dialogs.success(
-            'Funcionário excluído',
+            'Funcionário desativado',
             `${employee.name} foi desativado e não consegue mais entrar.`,
             'O histórico foi mantido.',
           );

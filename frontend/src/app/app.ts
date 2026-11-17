@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ThemeService } from './core/theme.service';
 import { DialogHost } from './shared/dialog-host/dialog-host';
 
 @Component({
@@ -11,4 +12,8 @@ import { DialogHost } from './shared/dialog-host/dialog-host';
     <app-dialog-host />
   `,
 })
-export class App {}
+export class App {
+  constructor() {
+    inject(ThemeService);
+  }
+}

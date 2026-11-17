@@ -1,46 +1,83 @@
 <div class="page">
   <section class="card welcome">
-    <h1>Bem-vindo(a)! — {{ user()?.name }}</h1>
-    <p class="muted small">{{ today | date: "EEEE, d 'de' MMMM 'de' y" }}</p>
+    <h1>{{ greeting }}, {{ user()?.name }}!</h1>
+    <p class="muted">
+      <span class="date">{{ today | date: "EEEE, d 'de' MMMM 'de' y" }}</span>
+      @if (freshCount() > 0) {
+        · {{ freshCount() === 1 ? '1 resgate novo' : freshCount() + ' resgates novos' }} desde a
+        sua última visita
+      }
+    </p>
   </section>
 
-  <section class="card quick" aria-label="Ações rápidas">
-    <button type="button" class="action strong" (click)="openAttendance()">
-      <app-icon name="headset" [size]="30" [stroke]="1.6" />
+  <section class="stat-grid" aria-label="Indicadores">
+    <div class="stat-card">
+      <span class="stat-label">Atendimentos hoje</span>
+      <span class="stat-value">{{ daySummary()?.total ?? '—' }}</span>
+      @if (daySummary()?.teamTarget; as target) {
+        <span class="stat-note" [class.good]="(daySummary()?.total ?? 0) >= target">
+          {{ (daySummary()?.total ?? 0) >= target ? 'equipe acima da meta' : 'meta da equipe' }}
+          ({{ target }})
+        </span>
+      }
+    </div>
+    <a class="stat-card" routerLink="/admin/resgates">
+      <span class="stat-label">Resgates novos</span>
+      <span class="stat-value">{{ recent() === null ? '—' : freshCount() }}</span>
+      <span class="stat-note link">ver resgates</span>
+    </a>
+    <div class="stat-card">
+      <span class="stat-label">Pontos em circulação</span>
+      <span class="stat-value">{{ month()?.points ?? '—' }}</span>
+      <span class="stat-note">saldo somado da equipe</span>
+    </div>
+    <a class="stat-card" routerLink="/admin/funcionarios">
+      <span class="stat-label">Funcionários ativos</span>
+      <span class="stat-value">{{ month()?.active ?? '—' }}</span>
+      @if (month()?.behind !== null && month()?.behind !== undefined) {
+        <span class="stat-note">{{ month()?.behind }} abaixo de 50% da meta do mês</span>
+      }
+    </a>
+  </section>
+
+  <section class="quick" aria-label="Ações rápidas">
+    <button type="button" class="btn quick-btn" (click)="openAttendance()">
+      <app-icon name="headset" />
       Lançar atendimentos
     </button>
-    <button type="button" class="action strong" (click)="openPoints()">
-      <app-icon name="coin" [size]="30" [stroke]="1.6" />
+    <button type="button" class="btn quick-btn" (click)="openPoints()">
+      <app-icon name="coin-plus" />
       Dar pontos
     </button>
-    <a class="action" routerLink="/admin/funcionarios" [queryParams]="{ novo: 1 }">
-      <app-icon name="user-plus" [size]="30" [stroke]="1.6" />
+    <a class="btn btn-ghost quick-btn" routerLink="/admin/funcionarios" [queryParams]="{ novo: 1 }">
+      <app-icon name="user-plus" />
       Novo funcionário
     </a>
-    <a class="action" routerLink="/admin/produtos" [queryParams]="{ novo: 1 }">
-      <app-icon name="box" [size]="30" [stroke]="1.6" />
+    <a class="btn btn-ghost quick-btn" routerLink="/admin/produtos" [queryParams]="{ novo: 1 }">
+      <app-icon name="box" />
       Novo produto
     </a>
-    <button type="button" class="action" (click)="openGoals()">
-      <app-icon name="target" [size]="30" [stroke]="1.6" />
+    <button type="button" class="btn btn-ghost quick-btn" (click)="openGoals()">
+      <app-icon name="target" />
       Definir metas
     </button>
   </section>
 
   <div class="columns">
     <section class="card">
-      <div class="toolbar">
-        <h2 class="card-title start">Ranking da equipe</h2>
-        <span class="spacer"></span>
+      <div class="card-head">
+        <h2 class="card-title">Ranking da equipe</h2>
         <app-tabs label="Período" variant="pill" [options]="periodTabs" [(value)]="period" />
       </div>
       <p class="muted small no-margin">{{ goalText() }} · ordenado por atendimentos</p>
 
       @if (error()) {
         <p class="empty">{{ error() }}</p>
-        <button type="button" class="btn btn-light retry" (click)="reload()">Tentar de novo</button>
+        <button type="button" class="btn btn-outline retry" (click)="reload()">
+          Tentar de novo
+        </button>
       } @else if (dashboard() === null) {
-        <p class="empty">Carregando...</p>
+        <div class="table-wrap"><p class="empty">Carregando...</p></div>
       } @else if (rows().length === 0) {
         <p class="empty">Nenhum funcionário ativo. Cadastre a equipe em Funcionários.</p>
       } @else {
@@ -60,7 +97,12 @@
               @for (row of rows(); track row.employeeId) {
                 <tr>
                   <td class="position">{{ row.position }}</td>
-                  <td>{{ row.name }}</td>
+                  <td>
+                    <span class="person-cell">
+                      <span class="avatar sm" aria-hidden="true">{{ row.initials }}</span>
+                      {{ row.name }}
+                    </span>
+                  </td>
                   <td>{{ row.total }}</td>
                   <td>
                     @if (row.percent !== null) {
@@ -82,6 +124,7 @@
                       type="button"
                       class="icon-btn bordered"
                       [attr.aria-label]="'Lançar atendimentos para ' + row.name"
+                      title="Lançar atendimentos"
                       (click)="openAttendance(row.employeeId)"
                     >
                       <app-icon name="headset" [size]="20" />
@@ -90,6 +133,7 @@
                       type="button"
                       class="icon-btn bordered"
                       [attr.aria-label]="'Dar pontos para ' + row.name"
+                      title="Dar pontos"
                       (click)="openPoints(row.employeeId)"
                     >
                       <app-icon name="coin-plus" [size]="20" />
@@ -103,7 +147,38 @@
       }
     </section>
 
-    <app-game-ranking-card [highlightUserId]="user()?.id ?? null" [showPlayLink]="true" />
+    <div class="side">
+      <section class="card">
+        <div class="card-head">
+          <h2 class="card-title">Resgates recentes</h2>
+          <a routerLink="/admin/resgates" class="card-link">ver todos</a>
+        </div>
+        @if (recent() === null) {
+          <p class="empty">Carregando...</p>
+        } @else if (recent()!.length === 0) {
+          <p class="empty">Nenhum resgate nos últimos 30 dias.</p>
+        } @else {
+          <ul class="list">
+            @for (item of recent()!.slice(0, 4); track item.id) {
+              <li>
+                <span class="spacer stack">
+                  <span>{{ item.employeeName }}</span>
+                  <span class="small muted">
+                    {{ item.quantity > 1 ? item.quantity + '× ' : '' }}{{ item.productName }} ·
+                    {{ when(item.createdAt) }}
+                  </span>
+                </span>
+                @if (isNew(item)) {
+                  <span class="badge">novo</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <app-game-ranking-card [highlightUserId]="user()?.id ?? null" [showPlayLink]="true" />
+    </div>
   </div>
 </div>
 

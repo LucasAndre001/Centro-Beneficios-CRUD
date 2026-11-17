@@ -10,7 +10,16 @@ import { GameRankingItem } from '../../core/models';
     <ol class="list scroll">
       @for (row of rows(); track row.userId) {
         <li [class.me]="row.userId === highlightUserId()">
-          <span class="rank-pos">{{ row.position }}</span>
+          @if (row.position <= 3) {
+            <span
+              [class]="'medal p' + row.position"
+              [attr.aria-label]="row.position + 'º lugar'"
+            >
+              {{ row.position }}
+            </span>
+          } @else {
+            <span class="rank-pos">{{ row.position }}</span>
+          }
           <span class="spacer">
             {{ row.userId === highlightUserId() ? 'Você' : row.name }}
             @if (row.isAdmin) {

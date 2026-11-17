@@ -1,0 +1,29 @@
+.people {
+  min-width: 760px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.goal-col {
+  width: 24%;
+}
+
+.goal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  --bar-height: 8px;
+}
+
+.grow {
+  flex: 1;
+}
+
+.pct {
+  width: 44px;
+  text-align: right;
+  font-size: 14px;
+}

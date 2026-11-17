@@ -35,30 +35,6 @@
   padding: 0 4px;
 }
 
-.segmented {
-  display: flex;
-  gap: 4px;
-  background: var(--navy);
-  border-radius: 8px;
-  padding: 4px;
-}
-
-.segmented button {
-  flex: 1;
-  min-height: 38px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.segmented button.active {
-  background: var(--blue);
-  color: var(--sky);
-  font-weight: 600;
-}
-
 .presets {
   display: flex;
   gap: 6px;
@@ -70,13 +46,14 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   background: transparent;
-  color: #fff;
+  color: inherit;
   cursor: pointer;
 }
 
 .presets button.active {
-  background: #fff;
-  color: var(--navy);
+  background: var(--chip);
+  color: var(--chip-text);
+  border-color: var(--chip);
   font-weight: 600;
 }
 
@@ -89,7 +66,7 @@
   list-style: none;
   margin: 0;
   padding: 6px;
-  background: var(--navy);
+  background: var(--inner);
   border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -143,4 +120,36 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.drawer-form {
+  flex: 1;
+}
+
+.drawer-form .section-label:not(:first-child) {
+  margin-top: 6px;
+}
+
+.drawer-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.drawer-footer .btn {
+  flex: 1;
+}
+
+.lead {
+  width: 44px;
+  height: 44px;
+  font-size: 15px;
+}
+
+.diff {
+  margin: 0;
+}
+
+.input.changed {
+  border: 2px solid var(--accent);
 }

@@ -8,9 +8,17 @@ export interface Notice {
   tone: NoticeTone;
 }
 
+export interface ConfirmItem {
+  name: string;
+  detail: string;
+  imageUrl?: string | null;
+}
+
 export interface ConfirmOptions {
   title: string;
-  message: string;
+  message?: string;
+  item?: ConfirmItem;
+  note?: string;
   details?: { label: string; value: string }[];
   confirmLabel: string;
   danger?: boolean;
